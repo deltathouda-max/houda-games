@@ -824,7 +824,7 @@ const S={
   fillWrap:{display:"flex",flexDirection:"column",gap:7,marginBottom:16},
   fillRow:{background:"#F7F8FC",borderRadius:9,padding:"11px 13px",border:"1px solid #E8ECF5"},
   fillTxt:{fontSize:13.5,color:"#3A4260",lineHeight:2.9},
-  bi:{display:"inline-block",minWidth:76,padding:"1px 5px",background:"transparent",border:"none",borderBottom:"2.5px solid",color:"#1A1E2E",fontSize:14,fontWeight:700,marginInline:4,textAlign:"center"},
+  bi:{display:"inline-block",minWidth:60,maxWidth:120,padding:"1px 5px",background:"transparent",border:"none",borderBottom:"2.5px solid",color:"#1A1E2E",fontSize:14,fontWeight:700,marginInline:4,textAlign:"center"},
   // FREE
   freeWrap:{display:"flex",flexDirection:"column",gap:9,marginBottom:16},
   freeItem:{},
