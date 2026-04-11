@@ -309,27 +309,16 @@ const SECTIONS = [
   },
 ];
 
-async function aiJudge(q, model, answer) {
-  const res = await fetch("/api/judge", {
-    method:"POST", headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({
-      model:"claude-sonnet-4-20250514", max_tokens:300,
-      system:`あなたはダーツバー「DELTA」の研修テスト採点者です。以下のJSON形式のみで返答してください。他テキスト不要。
-{"result":"correct"|"partial"|"incorrect","comment":"採点コメント（日本語・60字以内）"}
-correct=核心を含む（表現違いOK）、partial=一部正解・重要要素が不足、incorrect=大きく外れ・未回答`,
-      messages:[{role:"user",content:`問題:${q}\n模範解答:${model}\n回答:${answer||"（未回答）"}\n\n採点の注意事項：\n・表現の細かいずれ（「未満」「以下」など）は許容してください\n・証明書の点数条件（写真あり1点・なし2点）など細かい付帯条件が抜けていても、核心が合っていればcorrectとしてください\n・核心となる概念・行動が含まれていれば正解とし、枝葉の補足情報の有無で減点しないでください`}]
-    })
-  });
-  const d = await res.json();
-  const t = d.content?.[0]?.text||"{}";
-  try { return JSON.parse(t.replace(/```json|```/g,"").trim()); }
-  catch { return {result:"incorrect",comment:"採点エラーが発生しました"}; }
+// 自己採点モード（APIなし）
+function selfJudge() {
+  return { result:"self", comment:"模範解答と照らし合わせて自己採点してください" };
 }
 
 const RC = {
   correct:  {c:"#1756B8",bg:"#EBF1FD",bd:"#B8CFFA",tc:"#0E419A",icon:"✓",lbl:"正解"},
   partial:  {c:"#C27000",bg:"#FFF4E0",bd:"#FFD98A",tc:"#9A5800",icon:"△",lbl:"惜しい"},
   incorrect:{c:"#B51B1B",bg:"#FEF0F0",bd:"#F9B8B8",tc:"#8A1111",icon:"✗",lbl:"不正解"},
+  self:     {c:"#6B7280",bg:"#F3F4F6",bd:"#D1D5DB",tc:"#374151",icon:"📋",lbl:"自己採点"},
 };
 
 // ── Confetti ────────────────────────────────────────────────────────
@@ -464,23 +453,17 @@ export default function App() {
   async function judge() {
     setJudging(true); setFb(null);
     try {
-      const r = Q.type==="fill" ? autoFill(Q) : await aiJudge(Q.question,Q.model,collect(Q));
-      setFb(r);
-      setResults(p=>[...p,{...r,qLabel:Q.label,q:Q.question.slice(0,28),qId:Q.id}]);
-      // streak
+      const r = Q.type==="fill" ? autoFill(Q) : selfJudge();
+      setFb(r); setResults(p=>[...p,{...r,qLabel:Q.label,q:Q.question.slice(0,28),qId:Q.id}]);
       if (r.result==="correct") {
-        const ns = streak+1;
-        setStreak(ns);
+        const ns = streak+1; setStreak(ns);
         setConfetti(true); setTimeout(()=>setConfetti(false),100);
-      } else {
-        setStreak(0);
-      }
-      // section complete check
+      } else { setStreak(0); }
       const nextIdx = idx+1;
       if (nextIdx < queue.length && queue[nextIdx].sn !== Q.sn) {
         setTimeout(()=>setSecDone(true), 400);
       }
-    } catch { setFb({result:"incorrect",comment:"通信エラーが発生しました"}); setStreak(0); }
+    } catch { setFb({result:"incorrect",comment:"エラーが発生しました"}); setStreak(0); }
     setJudging(false);
   }
 
@@ -517,7 +500,7 @@ export default function App() {
             <div style={S.hLogo}>D</div>
             <div>
               <div style={S.hBrandName}>DELTA Training System</div>
-              <div style={S.hBrandSub}>昇給テスト 学習モード — AI即時採点対応</div>
+              <div style={S.hBrandSub}>昇給テスト 学習モード — 模範解答付き自己採点</div>
             </div>
           </div>
         </header>
