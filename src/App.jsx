@@ -310,7 +310,7 @@ const SECTIONS = [
 ];
 
 async function aiJudge(q, model, answer) {
-  const res = await fetch("https:///api/judge/v1/messages", {
+  const res = await fetch("/api/judge", {
     method:"POST", headers:{"Content-Type":"application/json"},
     body:JSON.stringify({
       model:"claude-sonnet-4-20250514", max_tokens:300,
