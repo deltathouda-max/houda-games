@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef } from "react";
 
 const SECTIONS = [
   {
@@ -310,7 +310,7 @@ const SECTIONS = [
 ];
 
 async function aiJudge(q, model, answer) {
-  const res = await fetch("/api/judge", {
+  const res = await fetch("https:///api/judge/v1/messages", {
     method:"POST", headers:{"Content-Type":"application/json"},
     body:JSON.stringify({
       model:"claude-sonnet-4-20250514", max_tokens:300,
@@ -801,3 +801,88 @@ const S={
   hSecBar:{width:4,alignSelf:"stretch",flexShrink:0,transition:"background .15s"},
   hSecMain:{flex:1,display:"flex",alignItems:"center",gap:11,padding:"13px 13px"},
   hSecNum:{fontSize:10,fontWeight:900,fontFamily:"'Inter',sans-serif",letterSpacing:".1em",minWidth:20},
+  hSecTitle:{fontSize:14,fontWeight:700},
+  hSecR:{display:"flex",alignItems:"center",gap:9,paddingRight:12},
+  hSecQ:{fontSize:12,fontWeight:700},
+  hChk:{width:21,height:21,borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",fontSize:11,fontWeight:700,flexShrink:0,transition:"background .15s,color .15s"},
+  hFt:{display:"flex",alignItems:"center",justifyContent:"space-between",background:"#fff",borderRadius:13,padding:"16px 18px",border:"1px solid #DDE2EE",boxShadow:"0 1px 3px #1756B810"},
+  hFtL:{display:"flex",alignItems:"baseline",gap:4},
+  hFtN:{fontFamily:"'Inter',sans-serif",fontSize:34,fontWeight:900,color:"#1A1E2E",lineHeight:1},
+  hFtU:{fontSize:13,fontWeight:600,color:"#8A94AC"},
+  hDot:{width:1,height:16,background:"#DDE2EE",margin:"0 9px",alignSelf:"center"},
+  hFtSub:{fontSize:12,color:"#8A94AC",fontWeight:500},
+  hBmBtn:{padding:"11px 14px",background:"#FFF4E0",border:"1.5px solid #FFD98A",borderRadius:9,fontSize:13,fontWeight:700,color:"#9A5800"},
+  hStartBtn:{padding:"11px 20px",background:"#1756B8",color:"#fff",border:"none",borderRadius:9,fontSize:14,fontWeight:700,boxShadow:"0 2px 8px #1756B840"},
+  // PROGRESS
+  pBar:{height:4,background:"#DDE2EE",position:"sticky",top:0,zIndex:200,overflow:"hidden"},
+  pFill:{height:"100%",transition:"width .4s cubic-bezier(.22,1,.36,1)"},
+  // NAV
+  nav:{display:"flex",alignItems:"center",background:"#fff",borderBottom:"1px solid #E8ECF5",padding:"9px 14px",gap:8,position:"sticky",top:4,zIndex:100},
+  navClose:{background:"none",border:"1px solid #DDE2EE",borderRadius:7,color:"#8A94AC",fontSize:12,fontWeight:600,padding:"5px 9px"},
+  navMid:{flex:1,display:"flex",flexDirection:"column",alignItems:"center",gap:2},
+  navBadge:{fontSize:11,fontWeight:700,padding:"3px 12px",borderRadius:20,letterSpacing:".04em"},
+  navSec:{fontSize:10,color:"#9AA3B8",fontWeight:600},
+  navCnt:{fontFamily:"'Inter',sans-serif",fontSize:14,fontWeight:800,color:"#1A1E2E",flexShrink:0},
+  bmBtn:{background:"none",border:"none",fontSize:16,padding:"2px 4px",lineHeight:1},
+  // STRIP
+  strip:{display:"flex",alignItems:"center",gap:5,padding:"6px 14px",background:"#F7F8FC",borderBottom:"1px solid #E8ECF5",flexWrap:"wrap"},
+  chip:{fontSize:12,fontWeight:700,padding:"2px 9px",borderRadius:12},
+  streakBadge:{fontSize:12,fontWeight:700,color:"#92400E",background:"#FEF3C7",border:"1px solid #FDE68A",padding:"2px 9px",borderRadius:12},
+  stripR:{marginLeft:"auto",fontSize:11,color:"#8A94AC",fontWeight:600},
+  // BODY — scrollable, padding-bottom for fixed button space
+  body:{maxWidth:640,margin:"0 auto",padding:"14px 13px 0",display:"flex",flexDirection:"column",gap:11,overflowY:"auto",maxHeight:"calc(100vh - 120px)"},
+  // QUESTION CARD
+  qCard:{background:"#fff",borderRadius:15,padding:"20px 18px 16px",borderTop:"4px solid",boxShadow:"0 1px 3px rgba(0,0,0,.05),0 4px 14px rgba(0,0,0,.04)"},
+  qHdr:{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12},
+  qLbl:{fontSize:11,fontWeight:800,letterSpacing:".08em",textTransform:"uppercase"},
+  qPts:{fontSize:11,fontWeight:600,color:"#8A94AC",background:"#F0F2F8",padding:"2px 9px",borderRadius:9},
+  qTxt:{fontSize:15,fontWeight:700,color:"#1A1E2E",lineHeight:2,marginBottom:18},
+  // FILL
+  fillWrap:{display:"flex",flexDirection:"column",gap:7,marginBottom:16},
+  fillRow:{background:"#F7F8FC",borderRadius:9,padding:"11px 13px",border:"1px solid #E8ECF5"},
+  fillTxt:{fontSize:13.5,color:"#3A4260",lineHeight:2.9},
+  bi:{display:"inline-block",minWidth:76,padding:"1px 5px",background:"transparent",border:"none",borderBottom:"2.5px solid",color:"#1A1E2E",fontSize:14,fontWeight:700,marginInline:4,textAlign:"center"},
+  // FREE
+  freeWrap:{display:"flex",flexDirection:"column",gap:9,marginBottom:16},
+  freeItem:{},
+  freeLbl:{fontSize:12,fontWeight:800,marginBottom:4},
+  ta:{width:"100%",padding:"9px 12px",border:"1.5px solid #DDE2EE",borderRadius:8,fontSize:14,resize:"none",lineHeight:1.85,background:"#FAFBFD",color:"#1A1E2E",transition:"border-color .15s"},
+  // JUDGE — sticky at bottom
+  judgeWrap:{position:"sticky",bottom:0,background:"#fff",paddingTop:12,marginTop:4},
+  judgeBtn:{width:"100%",padding:"13px",border:"none",borderRadius:10,fontSize:14,fontWeight:700,color:"#fff",display:"flex",alignItems:"center",justifyContent:"center",gap:8,letterSpacing:".03em",transition:"background .2s",boxShadow:"0 2px 8px rgba(0,0,0,.12)"},
+  spin:{display:"inline-block",width:15,height:15,border:"2px solid rgba(255,255,255,.3)",borderTop:"2px solid #fff",borderRadius:"50%",animation:"sp .7s linear infinite"},
+  // FEEDBACK
+  fbCard:{borderRadius:15,padding:"20px 18px",boxShadow:"0 2px 10px rgba(0,0,0,.06)"},
+  fbTop:{marginBottom:12},
+  fbBadge:{display:"inline-flex",alignItems:"center",gap:6,fontSize:13,fontWeight:800,padding:"4px 14px",borderRadius:20,marginBottom:9},
+  fbMsg:{fontSize:14,fontWeight:500,lineHeight:1.75},
+  exBtn:{width:"100%",padding:"9px 13px",border:"1px solid",borderRadius:8,fontSize:12,fontWeight:700,background:"#fff",marginBottom:12,letterSpacing:".02em"},
+  exBox:{background:"#fff",borderRadius:11,padding:"16px",marginBottom:14,border:"1px solid #E2E7F0"},
+  exHd:{fontSize:10,fontWeight:800,letterSpacing:".14em",marginBottom:7,paddingLeft:9,borderLeft:"3px solid",textTransform:"uppercase"},
+  exModel:{fontSize:14,color:"#1A1E2E",fontWeight:600,lineHeight:1.95,whiteSpace:"pre-wrap"},
+  exBody:{fontSize:13,color:"#4A5270",lineHeight:2,whiteSpace:"pre-wrap"},
+  nextBtn:{width:"100%",padding:"13px",border:"none",borderRadius:10,fontSize:14,fontWeight:700,color:"#fff",letterSpacing:".03em",boxShadow:"0 2px 8px rgba(0,0,0,.12)"},
+  // RESULT
+  rWrap:{maxWidth:540,margin:"0 auto",padding:"36px 18px 60px"},
+  rTop:{marginBottom:24,paddingBottom:20,borderBottom:"1px solid #DDE2EE"},
+  rEye:{fontSize:10,fontWeight:800,letterSpacing:".18em",color:"#1756B8",background:"#EBF1FD",display:"inline-block",padding:"3px 12px",borderRadius:20,marginBottom:12},
+  rPct:{fontFamily:"'Inter',sans-serif",fontSize:72,fontWeight:900,color:"#1A1E2E",lineHeight:1,marginBottom:4},
+  rPctU:{fontSize:22,color:"#8A94AC",fontWeight:500,marginLeft:2},
+  rSub:{fontSize:13,color:"#8A94AC",fontWeight:500},
+  rStats:{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:9,marginBottom:18},
+  rStatC:{borderRadius:12,padding:"16px 8px",textAlign:"center"},
+  rChartBox:{background:"#fff",borderRadius:13,padding:"16px",border:"1px solid #DDE2EE",marginBottom:16},
+  rChartTitle:{fontSize:11,fontWeight:700,color:"#8A94AC",letterSpacing:".08em",marginBottom:12},
+  rChartRow:{display:"flex",alignItems:"center",gap:10,marginBottom:9},
+  rChartLbl:{fontSize:12,fontWeight:700,minWidth:44},
+  rChartTrack:{flex:1,height:8,background:"#EEF1F7",borderRadius:99,overflow:"hidden"},
+  rChartFill:{height:"100%",borderRadius:99,transition:"width .6s ease"},
+  rChartPct:{fontSize:12,fontWeight:700,minWidth:32,textAlign:"right"},
+  rList:{background:"#fff",borderRadius:12,overflow:"hidden",border:"1px solid #DDE2EE",marginBottom:18,maxHeight:300,overflowY:"auto"},
+  rListHd:{display:"flex",gap:10,padding:"8px 13px",background:"#F0F3FB",borderBottom:"1px solid #DDE2EE",alignItems:"center"},
+  rRow:{display:"flex",alignItems:"center",gap:9,padding:"8px 13px",borderBottom:"1px solid #F0F3FB",borderLeft:"3px solid"},
+  rRBadge:{fontSize:11,fontWeight:700,padding:"2px 8px",borderRadius:9,flexShrink:0},
+  rBtns:{display:"flex",gap:8,flexWrap:"wrap"},
+  rBtnO:{flex:1,padding:"12px",background:"#fff",border:"1.5px solid #DDE2EE",borderRadius:10,fontSize:13,fontWeight:700,color:"#6A7490",minWidth:80},
+  rBtnF:{flex:2,padding:"12px",border:"none",borderRadius:10,fontSize:13,fontWeight:700,color:"#fff",minWidth:100},
+};
