@@ -6,6 +6,7 @@ import { vibrateSuccess } from '../lib/haptics.js'
 import Typewriter from '../components/Typewriter.jsx'
 import InviteBlock from '../components/InviteBlock.jsx'
 import { ReactionBar, ReactionOverlay } from '../components/Reactions.jsx'
+import RulesModal from '../components/RulesModal.jsx'
 
 export default function Room({ code, playerId, onLeave }) {
   const [room, setRoom] = useState(null)
@@ -64,7 +65,10 @@ export default function Room({ code, playerId, onLeave }) {
           <div className="eyebrow"><Typewriter text={game?.name ?? room.gameId} /></div>
           <div className="room-code">{code}</div>
         </div>
-        <button className="btn btn-ghost" onClick={handleLeave}>退出</button>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6, alignItems: 'flex-end' }}>
+          <button className="btn btn-ghost" onClick={handleLeave}>退出</button>
+          {game && <RulesModal title={game.name} rules={game.rules} />}
+        </div>
       </div>
 
       <ReactionBar code={code} playerId={playerId} />
