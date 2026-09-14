@@ -4,6 +4,7 @@ import { getGame } from '../games/registry.js'
 import { playFanfare } from '../lib/sound.js'
 import { vibrateSuccess } from '../lib/haptics.js'
 import Typewriter from '../components/Typewriter.jsx'
+import InviteBlock from '../components/InviteBlock.jsx'
 
 export default function Room({ code, playerId, onLeave }) {
   const [room, setRoom] = useState(null)
@@ -88,6 +89,8 @@ export default function Room({ code, playerId, onLeave }) {
             </>
           )}
           {!isHost && <p className="subtitle" style={{ marginTop: 16 }}>ホストが開始するのを待っています…</p>}
+
+          <InviteBlock code={code} />
         </div>
       )}
 
