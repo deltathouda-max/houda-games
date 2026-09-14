@@ -6,6 +6,7 @@ import KyuMasuShogi from './kyuMasuShogi/KyuMasuShogi.jsx'
 import KyuMasuShogiLobbySettings from './kyuMasuShogi/KyuMasuShogiLobbySettings.jsx'
 import ConnectFour from './connectFour/ConnectFour.jsx'
 import Yacht from './yacht/Yacht.jsx'
+import Chinchiro from './chinchiro/Chinchiro.jsx'
 
 // 今後オセロ・hit and blow等を追加する際はここに登録するだけでハブ・ロビーから遊べるようにする
 export const GAMES = [
@@ -63,6 +64,15 @@ export const GAMES = [
     minPlayers: 2,
     maxPlayers: 6,
     component: Yacht,
+    available: true,
+  },
+  {
+    id: 'chinchiro',
+    name: 'チンチロ',
+    description: 'サイコロ3つで役を競う伝統のダイスゲーム(2〜6人)',
+    minPlayers: 2,
+    maxPlayers: 6,
+    component: Chinchiro,
     available: true,
   },
 ]
