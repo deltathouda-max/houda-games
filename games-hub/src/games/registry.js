@@ -7,6 +7,8 @@ import KyuMasuShogiLobbySettings from './kyuMasuShogi/KyuMasuShogiLobbySettings.
 import ConnectFour from './connectFour/ConnectFour.jsx'
 import Yacht from './yacht/Yacht.jsx'
 import Chinchiro from './chinchiro/Chinchiro.jsx'
+import WordDrop from './wordDrop/WordDrop.jsx'
+import WordDropLobbySettings from './wordDrop/WordDropLobbySettings.jsx'
 
 // 今後オセロ・hit and blow等を追加する際はここに登録するだけでハブ・ロビーから遊べるようにする
 export const GAMES = [
@@ -73,6 +75,16 @@ export const GAMES = [
     minPlayers: 2,
     maxPlayers: 6,
     component: Chinchiro,
+    available: true,
+  },
+  {
+    id: 'word-drop',
+    name: 'ワード落とし',
+    description: '親だけがお題を知り、会話にさりげなく混ぜる。子はそれを聞いて推理する(3人以上)',
+    minPlayers: 3,
+    maxPlayers: 12,
+    component: WordDrop,
+    lobbySettings: WordDropLobbySettings,
     available: true,
   },
 ]
