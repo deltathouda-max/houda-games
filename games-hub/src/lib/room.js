@@ -1,6 +1,6 @@
 import {
   doc, getDoc, setDoc, updateDoc, deleteDoc, onSnapshot,
-  collection, serverTimestamp, deleteField,
+  collection, serverTimestamp, deleteField, runTransaction,
 } from 'firebase/firestore'
 import { db, auth, authReady } from '../firebase.js'
 import { generateRoomCode } from './id.js'
@@ -69,6 +69,24 @@ export function subscribePlayers(code, cb) {
 
 export async function updateRoom(code, patch) {
   await updateDoc(roomRef(code), patch)
+}
+
+// 「誰でも押せるが最初の1回だけ処理したい」ボタン用。predicateが現在のルーム内容を見て
+// falseを返したら何もしない(=既に他の人の操作で状態が進んでいた)ので、複数人が同時に
+// 押しても二重に進行しない。
+export async function guardedUpdate(code, predicate, patch) {
+  try {
+    await runTransaction(db, async (tx) => {
+      const ref = roomRef(code)
+      const snap = await tx.get(ref)
+      if (!snap.exists()) return
+      if (!predicate(snap.data())) return
+      tx.update(ref, patch)
+    })
+  } catch {
+    // 複数人がほぼ同時に押した場合、負けた側のトランザクションは競合で失敗しうるが、
+    // それは「もう片方が先に処理した」という正常な結果なので無視してよい。
+  }
 }
 
 export async function updateSettings(code, settings) {
