@@ -4,6 +4,7 @@ import Othello from './othello/Othello.jsx'
 import HitAndBlow from './hitAndBlow/HitAndBlow.jsx'
 import KyuMasuShogi from './kyuMasuShogi/KyuMasuShogi.jsx'
 import KyuMasuShogiLobbySettings from './kyuMasuShogi/KyuMasuShogiLobbySettings.jsx'
+import ConnectFour from './connectFour/ConnectFour.jsx'
 
 // 今後オセロ・hit and blow等を追加する際はここに登録するだけでハブ・ロビーから遊べるようにする
 export const GAMES = [
@@ -43,6 +44,15 @@ export const GAMES = [
     maxPlayers: 2,
     component: KyuMasuShogi,
     lobbySettings: KyuMasuShogiLobbySettings,
+    available: true,
+  },
+  {
+    id: 'connect-four',
+    name: 'コネクトフォー',
+    description: '縦・横・斜めに4つ並べたら勝ち(2人用)',
+    minPlayers: 2,
+    maxPlayers: 2,
+    component: ConnectFour,
     available: true,
   },
 ]
