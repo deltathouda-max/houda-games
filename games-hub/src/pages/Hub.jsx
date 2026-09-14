@@ -1,11 +1,13 @@
 import { useState } from 'react'
 import { GAMES } from '../games/registry.js'
 import { createRoom, joinRoom } from '../lib/room.js'
+import { getSavedName, saveName } from '../lib/storage.js'
+import Typewriter from '../components/Typewriter.jsx'
 
 export default function Hub({ onEnterRoom, prefillCode }) {
   const [mode, setMode] = useState(prefillCode ? 'join' : null) // null | 'create' | 'join'
   const [selectedGame, setSelectedGame] = useState(null)
-  const [name, setName] = useState('')
+  const [name, setName] = useState(getSavedName)
   const [code, setCode] = useState(prefillCode ?? '')
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
@@ -14,6 +16,7 @@ export default function Hub({ onEnterRoom, prefillCode }) {
     if (!name.trim() || !selectedGame) return
     setBusy(true); setError('')
     try {
+      saveName(name.trim())
       const { code: newCode, playerId } = await createRoom({ gameId: selectedGame.id, hostName: name.trim() })
       onEnterRoom({ code: newCode, playerId, gameId: selectedGame.id })
     } catch (e) {
@@ -25,6 +28,7 @@ export default function Hub({ onEnterRoom, prefillCode }) {
     if (!name.trim() || !code.trim()) return
     setBusy(true); setError('')
     try {
+      saveName(name.trim())
       const { code: joinedCode, playerId } = await joinRoom({ code: code.trim(), name: name.trim() })
       onEnterRoom({ code: joinedCode, playerId })
     } catch (e) {
@@ -36,7 +40,7 @@ export default function Hub({ onEnterRoom, prefillCode }) {
     return (
       <div className="card">
         <div className="eyebrow">ほうだのゲーム集</div>
-        <div className="title">遊ぶゲームを選ぶ</div>
+        <div className="title"><Typewriter text="遊ぶゲームを選ぶ" /></div>
         <p className="subtitle">友達を招待して、みんなのスマホから一緒に遊べます。</p>
         <div className="game-list">
           {GAMES.map((g) => (

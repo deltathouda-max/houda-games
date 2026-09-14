@@ -1,11 +1,15 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { subscribeRoom, subscribePlayers, leaveRoom, startGame, backToLobby } from '../lib/room.js'
 import { getGame } from '../games/registry.js'
+import { playFanfare } from '../lib/sound.js'
+import { vibrateSuccess } from '../lib/haptics.js'
+import Typewriter from '../components/Typewriter.jsx'
 
 export default function Room({ code, playerId, onLeave }) {
   const [room, setRoom] = useState(null)
   const [players, setPlayers] = useState([])
   const [notFound, setNotFound] = useState(false)
+  const prevScoreRef = useRef(null)
 
   useEffect(() => {
     const unsubRoom = subscribeRoom(code, (r) => {
@@ -15,6 +19,17 @@ export default function Room({ code, playerId, onLeave }) {
     const unsubPlayers = subscribePlayers(code, setPlayers)
     return () => { unsubRoom(); unsubPlayers() }
   }, [code])
+
+  // 自分のスコアが増えた瞬間にファンファーレ+振動。ゲームごとに個別実装しなくて済むよう共通化
+  useEffect(() => {
+    const me = players.find((p) => p.id === playerId)
+    if (!me) return
+    if (prevScoreRef.current !== null && me.score > prevScoreRef.current) {
+      playFanfare()
+      vibrateSuccess()
+    }
+    prevScoreRef.current = me.score
+  }, [players, playerId])
 
   if (notFound) {
     return (
@@ -43,7 +58,7 @@ export default function Room({ code, playerId, onLeave }) {
     <div style={{ width: '100%', maxWidth: 480, display: 'flex', flexDirection: 'column', gap: 16 }}>
       <div className="card" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <div className="eyebrow">{game?.name ?? room.gameId}</div>
+          <div className="eyebrow"><Typewriter text={game?.name ?? room.gameId} /></div>
           <div className="room-code">{code}</div>
         </div>
         <button className="btn btn-ghost" onClick={handleLeave}>退出</button>
