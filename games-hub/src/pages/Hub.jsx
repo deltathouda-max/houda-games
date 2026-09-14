@@ -35,7 +35,7 @@ export default function Hub({ onEnterRoom, prefillCode }) {
   if (mode === null) {
     return (
       <div className="card">
-        <div className="eyebrow">飲み会ゲーム集</div>
+        <div className="eyebrow">ほうだのゲーム集</div>
         <div className="title">遊ぶゲームを選ぶ</div>
         <p className="subtitle">友達を招待して、みんなのスマホから一緒に遊べます。</p>
         <div className="game-list">
