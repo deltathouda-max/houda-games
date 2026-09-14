@@ -8,6 +8,7 @@ import { generateRoomCode } from './id.js'
 const roomRef = (code) => doc(db, 'rooms', code)
 const playerRef = (code, playerId) => doc(db, 'rooms', code, 'players', playerId)
 const playersColRef = (code) => collection(db, 'rooms', code, 'players')
+const reactionsColRef = (code) => collection(db, 'rooms', code, 'reactions')
 
 // 部屋を作成し、作成者を最初のプレイヤー(ホスト)として登録する
 export async function createRoom({ gameId, hostName }) {
@@ -132,6 +133,22 @@ export async function addScore(code, playerId, delta) {
 
 export function currentUid() {
   return auth.currentUser?.uid ?? null
+}
+
+// 一瞬表示して消えるリアクション。送信者が表示後(数秒後)に自分で削除するので
+// 部屋に溜まり続けない
+export async function sendReaction(code, playerId, emoji) {
+  const ref = doc(reactionsColRef(code))
+  await setDoc(ref, { emoji, playerId, createdAt: serverTimestamp() })
+  setTimeout(() => { deleteDoc(ref).catch(() => {}) }, 4000)
+}
+
+export function subscribeReactions(code, cb) {
+  return onSnapshot(reactionsColRef(code), (snap) => {
+    snap.docChanges().forEach((change) => {
+      if (change.type === 'added') cb({ id: change.doc.id, ...change.doc.data() })
+    })
+  })
 }
 
 export { deleteField }

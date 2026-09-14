@@ -5,6 +5,7 @@ import { playFanfare } from '../lib/sound.js'
 import { vibrateSuccess } from '../lib/haptics.js'
 import Typewriter from '../components/Typewriter.jsx'
 import InviteBlock from '../components/InviteBlock.jsx'
+import { ReactionBar, ReactionOverlay } from '../components/Reactions.jsx'
 
 export default function Room({ code, playerId, onLeave }) {
   const [room, setRoom] = useState(null)
@@ -57,6 +58,7 @@ export default function Room({ code, playerId, onLeave }) {
 
   return (
     <div style={{ width: '100%', maxWidth: 480, display: 'flex', flexDirection: 'column', gap: 16 }}>
+      <ReactionOverlay code={code} />
       <div className="card" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
           <div className="eyebrow"><Typewriter text={game?.name ?? room.gameId} /></div>
@@ -64,6 +66,8 @@ export default function Room({ code, playerId, onLeave }) {
         </div>
         <button className="btn btn-ghost" onClick={handleLeave}>退出</button>
       </div>
+
+      <ReactionBar code={code} playerId={playerId} />
 
       {room.status === 'lobby' && (
         <div className="card">
