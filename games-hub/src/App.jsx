@@ -4,6 +4,7 @@ import Room from './pages/Room.jsx'
 import { playDecide } from './lib/sound.js'
 import { authReady } from './firebase.js'
 import { findExistingPlayer } from './lib/room.js'
+import LoadingFlavor from './components/LoadingFlavor.jsx'
 
 function readRoomFromUrl() {
   return new URLSearchParams(window.location.search).get('room')
@@ -50,7 +51,7 @@ export default function App() {
   }, [session])
 
   if (checkingReconnect) {
-    return <div className="app-shell"><div className="card"><p className="subtitle">読み込み中…</p></div></div>
+    return <div className="app-shell"><div className="card"><LoadingFlavor /></div></div>
   }
 
   return (

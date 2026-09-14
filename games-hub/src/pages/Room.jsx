@@ -7,6 +7,7 @@ import Typewriter from '../components/Typewriter.jsx'
 import InviteBlock from '../components/InviteBlock.jsx'
 import { ReactionBar, ReactionOverlay } from '../components/Reactions.jsx'
 import RulesModal from '../components/RulesModal.jsx'
+import LoadingFlavor from '../components/LoadingFlavor.jsx'
 
 export default function Room({ code, playerId, onLeave }) {
   const [room, setRoom] = useState(null)
@@ -44,7 +45,7 @@ export default function Room({ code, playerId, onLeave }) {
   }
 
   if (!room) {
-    return <div className="card"><p className="subtitle">読み込み中…</p></div>
+    return <div className="card"><LoadingFlavor /></div>
   }
 
   const isHost = room.hostId === playerId
@@ -108,7 +109,7 @@ export default function Room({ code, playerId, onLeave }) {
 
       {room.status === 'playing' && game?.component && (
         <>
-          <Suspense fallback={<div className="card"><p className="subtitle">読み込み中…</p></div>}>
+          <Suspense fallback={<div className="card"><LoadingFlavor /></div>}>
             <game.component code={code} playerId={playerId} room={room} players={players} isHost={isHost} />
           </Suspense>
           <div className="card">
