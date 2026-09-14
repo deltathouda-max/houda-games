@@ -172,3 +172,16 @@ input, select {
   border-color: var(--amber-400);
   box-shadow: inset 0 0 0 1px var(--amber-400);
 }
+
+.reaction-floater {
+  position: absolute;
+  bottom: 80px;
+  font-size: 28px;
+  animation: reaction-rise 1.8s ease-out forwards;
+}
+
+@keyframes reaction-rise {
+  0% { transform: translateY(0) scale(0.8); opacity: 0; }
+  15% { transform: translateY(-10px) scale(1); opacity: 1; }
+  100% { transform: translateY(-160px) scale(1); opacity: 0; }
+}

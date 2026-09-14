@@ -40,6 +40,14 @@ npm run dev
    npx firebase-tools use --add   # 作成したプロジェクトを選択
    npx firebase-tools deploy --only firestore:rules
    ```
+7. 古い部屋の自動削除(TTL)を有効にする。部屋の合言葉が3桁の数字(最大1000通り)しかないため、
+   遊び終わった部屋が溜まり続けると新しい部屋が作りにくくなる。`rooms` コレクションの
+   `expiresAt` フィールド(作成から12時間後を自動設定)にTTLポリシーを設定しておくと安心:
+   ```bash
+   npx firebase-tools firestore:indexes  # gcloudが未認証なら先に `gcloud auth login`
+   gcloud firestore fields ttls update expiresAt --collection-group=rooms --enable-ttl --project=<プロジェクトID>
+   ```
+   (Firebase ConsoleのFirestore→「TTL」タブからでも同様に設定できる。未設定でもアプリの動作に支障はないが、部屋は削除されずに残り続ける)
 
 これで `npm run dev` すると本番Firebaseに接続する(`.env.local` に `VITE_FIREBASE_PROJECT_ID` があるかどうかで自動判定)。
 
@@ -52,8 +60,11 @@ GitHub Pages等の静的ホスティングでも `npm run build` の `dist/` を
 
 ```
 rooms/{roomCode}
-  gameId, hostId, status(lobby|playing), settings.timerSeconds, round
+  gameId, hostId, status(lobby|playing), settings.timerSeconds, round, expiresAt(TTL用)
   round: { index, topic, phase(answering|reveal|judged), deadlineAt, answers: {playerId: text}, winnerId }
+
+rooms/{roomCode}/reactions/{id}
+  emoji, playerId, createdAt (表示後に送信者が自分で削除する一時的なドキュメント)
 
 rooms/{roomCode}/players/{uid}
   name, score, isHost, joinedAt
@@ -67,3 +78,13 @@ rooms/{roomCode}/players/{uid}
 
 - 匿名認証のみで、部屋コードを知っている人なら誰でも参加・部屋の状態を更新できる(友達内利用の前提。厳密な不正対策はしていない)
 - 同一ブラウザでの複数タブは別プレイヤーとして扱われない場合がある(Firebase Authの匿名セッションがブラウザ単位のため)。実機では端末ごとに別セッションになるので問題ない
+
+### Firestoreルールの見直しメモ(2026-09)
+
+以下の設計を確認し、友達内利用の前提では許容範囲と判断してそのままにした:
+
+- `rooms/{roomId}` は認証済みなら誰でも中身を更新できる(ホスト権限のチェックはアプリ側UIのみ)。部屋コードが3桁の数字(最大1000通り)なので理論上は総当たりも容易だが、見知らぬ第三者が偶然合言葉を当てて荒らす実害は想定しにくい
+- `players/{playerId}` と `reactions/{reactionId}` は本人(uid一致)のみ書き込み可能に既になっている
+
+追加で施した軽い硬化(挙動は変えず、クライアント側のバグ等で不正な値が書き込まれるのを防ぐだけの安全網):
+- `reactions` の `emoji` フィールドに型(文字列)と長さ(8文字以内)のバリデーションを追加

@@ -1,0 +1,28 @@
+name: games-hub CI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'games-hub/**'
+      - '.github/workflows/games-hub-ci.yml'
+  pull_request:
+    paths:
+      - 'games-hub/**'
+      - '.github/workflows/games-hub-ci.yml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: games-hub
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: games-hub/package-lock.json
+      - run: npm ci
+      - run: npm run build

@@ -1,6 +1,6 @@
 import {
   doc, getDoc, setDoc, updateDoc, deleteDoc, onSnapshot,
-  collection, serverTimestamp, deleteField, runTransaction,
+  collection, serverTimestamp, deleteField, runTransaction, Timestamp,
 } from 'firebase/firestore'
 import { db, auth, authReady } from '../firebase.js'
 import { generateRoomCode } from './id.js'
@@ -8,6 +8,7 @@ import { generateRoomCode } from './id.js'
 const roomRef = (code) => doc(db, 'rooms', code)
 const playerRef = (code, playerId) => doc(db, 'rooms', code, 'players', playerId)
 const playersColRef = (code) => collection(db, 'rooms', code, 'players')
+const reactionsColRef = (code) => collection(db, 'rooms', code, 'reactions')
 
 // 部屋を作成し、作成者を最初のプレイヤー(ホスト)として登録する
 export async function createRoom({ gameId, hostName }) {
@@ -24,6 +25,10 @@ export async function createRoom({ gameId, hostName }) {
       settings: { timerSeconds: 0 },
       round: null,
       createdAt: serverTimestamp(),
+      // 合言葉が3桁の数字(最大1000通り)しかないため、遊び終わった部屋を
+      // 溜め続けると新しい部屋が作れなくなる。FirestoreのネイティブTTLポリシーで
+      // 自動削除させる前提のフィールド(有効化手順はREADME参照)
+      expiresAt: Timestamp.fromMillis(Date.now() + 12 * 60 * 60 * 1000),
     })
     await setDoc(playerRef(code, uid), {
       name: hostName,
@@ -41,13 +46,29 @@ export async function joinRoom({ code, name }) {
   const ref = roomRef(code)
   const snap = await getDoc(ref)
   if (!snap.exists()) throw new Error('その合言葉の部屋は見つかりませんでした')
-  await setDoc(playerRef(code, uid), {
-    name,
-    score: 0,
-    isHost: false,
-    joinedAt: serverTimestamp(),
-  }, { merge: true })
+  // 既に参加済み(再接続)の場合はスコアや参加順を巻き戻さないよう名前だけ更新する
+  const existing = await getDoc(playerRef(code, uid))
+  if (existing.exists()) {
+    await setDoc(playerRef(code, uid), { name }, { merge: true })
+  } else {
+    await setDoc(playerRef(code, uid), {
+      name,
+      score: 0,
+      isHost: false,
+      joinedAt: serverTimestamp(),
+    })
+  }
   return { code, playerId: uid }
+}
+
+// 部屋の再読み込み時に「既にそのプレイヤーとして参加済みか」を確認するための問い合わせ
+export async function findExistingPlayer(code, playerId) {
+  const [roomSnap, playerSnap] = await Promise.all([
+    getDoc(roomRef(code)),
+    getDoc(playerRef(code, playerId)),
+  ])
+  if (!roomSnap.exists() || !playerSnap.exists()) return null
+  return { code, playerId }
 }
 
 export async function leaveRoom({ code, playerId }) {
@@ -93,6 +114,13 @@ export async function updateSettings(code, settings) {
   await updateDoc(roomRef(code), { settings })
 }
 
+// ロビーを経由せず(参加者確認・ゲーム開始ボタンを省略して)その場でもう一度始める。
+// スコアは各プレイヤー本人しか書き換えられない(Firestoreルール)ため、ホストからは
+// リセットせず、その部屋での通算成績としてそのまま積み上げる
+export async function rematch(code) {
+  await updateDoc(roomRef(code), { round: null })
+}
+
 export async function startGame(code) {
   await updateDoc(roomRef(code), { status: 'playing' })
 }
@@ -109,6 +137,22 @@ export async function addScore(code, playerId, delta) {
 
 export function currentUid() {
   return auth.currentUser?.uid ?? null
+}
+
+// 一瞬表示して消えるリアクション。送信者が表示後(数秒後)に自分で削除するので
+// 部屋に溜まり続けない
+export async function sendReaction(code, playerId, emoji) {
+  const ref = doc(reactionsColRef(code))
+  await setDoc(ref, { emoji, playerId, createdAt: serverTimestamp() })
+  setTimeout(() => { deleteDoc(ref).catch(() => {}) }, 4000)
+}
+
+export function subscribeReactions(code, cb) {
+  return onSnapshot(reactionsColRef(code), (snap) => {
+    snap.docChanges().forEach((change) => {
+      if (change.type === 'added') cb({ id: change.doc.id, ...change.doc.data() })
+    })
+  })
 }
 
 export { deleteField }

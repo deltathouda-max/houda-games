@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { updateRoom, addScore } from '../../lib/room.js'
 import { drawTopic } from './topics.js'
+import Typewriter from '../../components/Typewriter.jsx'
 
 export default function SoreGaSeikai({ code, playerId, room, players, isHost }) {
   const round = room.round
@@ -80,7 +81,7 @@ export default function SoreGaSeikai({ code, playerId, room, players, isHost }) 
   return (
     <div className="card">
       <div className="eyebrow">第{round.index + 1}問</div>
-      <div className="title">{round.topic.text}</div>
+      <div className="title"><Typewriter text={round.topic.text} /></div>
 
       {round.phase === 'answering' && (
         <>
