@@ -5,6 +5,7 @@ import HitAndBlow from './hitAndBlow/HitAndBlow.jsx'
 import KyuMasuShogi from './kyuMasuShogi/KyuMasuShogi.jsx'
 import KyuMasuShogiLobbySettings from './kyuMasuShogi/KyuMasuShogiLobbySettings.jsx'
 import ConnectFour from './connectFour/ConnectFour.jsx'
+import Yacht from './yacht/Yacht.jsx'
 
 // 今後オセロ・hit and blow等を追加する際はここに登録するだけでハブ・ロビーから遊べるようにする
 export const GAMES = [
@@ -53,6 +54,15 @@ export const GAMES = [
     minPlayers: 2,
     maxPlayers: 2,
     component: ConnectFour,
+    available: true,
+  },
+  {
+    id: 'yacht',
+    name: 'ヨット',
+    description: 'サイコロを振って役を揃える定番ダイスゲーム(2〜6人)',
+    minPlayers: 2,
+    maxPlayers: 6,
+    component: Yacht,
     available: true,
   },
 ]
