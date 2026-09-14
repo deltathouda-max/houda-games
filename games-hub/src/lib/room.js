@@ -1,6 +1,6 @@
 import {
   doc, getDoc, setDoc, updateDoc, deleteDoc, onSnapshot,
-  collection, serverTimestamp, deleteField, runTransaction,
+  collection, serverTimestamp, deleteField, runTransaction, Timestamp,
 } from 'firebase/firestore'
 import { db, auth, authReady } from '../firebase.js'
 import { generateRoomCode } from './id.js'
@@ -25,6 +25,10 @@ export async function createRoom({ gameId, hostName }) {
       settings: { timerSeconds: 0 },
       round: null,
       createdAt: serverTimestamp(),
+      // 合言葉が3桁の数字(最大1000通り)しかないため、遊び終わった部屋を
+      // 溜め続けると新しい部屋が作れなくなる。FirestoreのネイティブTTLポリシーで
+      // 自動削除させる前提のフィールド(有効化手順はREADME参照)
+      expiresAt: Timestamp.fromMillis(Date.now() + 12 * 60 * 60 * 1000),
     })
     await setDoc(playerRef(code, uid), {
       name: hostName,
