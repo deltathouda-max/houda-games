@@ -14,7 +14,7 @@ import WordDropLobbySettings from './wordDrop/WordDropLobbySettings.jsx'
 export const GAMES = [
   {
     id: 'sore-ga-seikai',
-    name: 'それが正解',
+    name: '激論！朝までそれ正解！',
     description: 'お題に一言で回答し、みんなで一番おもしろい答えを選ぶ',
     minPlayers: 3,
     maxPlayers: 12,
