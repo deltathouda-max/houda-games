@@ -9,6 +9,7 @@ import Yacht from './yacht/Yacht.jsx'
 import Chinchiro from './chinchiro/Chinchiro.jsx'
 import WordDrop from './wordDrop/WordDrop.jsx'
 import WordDropLobbySettings from './wordDrop/WordDropLobbySettings.jsx'
+import WikipediaGolf from './wikipediaGolf/WikipediaGolf.jsx'
 
 // 今後オセロ・hit and blow等を追加する際はここに登録するだけでハブ・ロビーから遊べるようにする
 export const GAMES = [
@@ -85,6 +86,15 @@ export const GAMES = [
     maxPlayers: 12,
     component: WordDrop,
     lobbySettings: WordDropLobbySettings,
+    available: true,
+  },
+  {
+    id: 'wikipedia-golf',
+    name: 'Wikipediaゴルフ',
+    description: 'スタートの記事からリンクを辿り、ゴールの記事に一番早く着いた人の勝ち(2人以上)',
+    minPlayers: 2,
+    maxPlayers: 12,
+    component: WikipediaGolf,
     available: true,
   },
 ]
