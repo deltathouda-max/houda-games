@@ -1,6 +1,9 @@
 import SoreGaSeikai from './soreGaSeikai/SoreGaSeikai.jsx'
+import SoreGaSeikaiLobbySettings from './soreGaSeikai/SoreGaSeikaiLobbySettings.jsx'
 import Othello from './othello/Othello.jsx'
 import HitAndBlow from './hitAndBlow/HitAndBlow.jsx'
+import KyuMasuShogi from './kyuMasuShogi/KyuMasuShogi.jsx'
+import KyuMasuShogiLobbySettings from './kyuMasuShogi/KyuMasuShogiLobbySettings.jsx'
 
 // 今後オセロ・hit and blow等を追加する際はここに登録するだけでハブ・ロビーから遊べるようにする
 export const GAMES = [
@@ -11,6 +14,7 @@ export const GAMES = [
     minPlayers: 3,
     maxPlayers: 12,
     component: SoreGaSeikai,
+    lobbySettings: SoreGaSeikaiLobbySettings,
     available: true,
   },
   {
@@ -29,6 +33,16 @@ export const GAMES = [
     minPlayers: 2,
     maxPlayers: 2,
     component: HitAndBlow,
+    available: true,
+  },
+  {
+    id: 'kyu-masu-shogi',
+    name: '9マス将棋',
+    description: '3×3の盤で将棋の駒を動かす対戦(2人用)',
+    minPlayers: 2,
+    maxPlayers: 2,
+    component: KyuMasuShogi,
+    lobbySettings: KyuMasuShogiLobbySettings,
     available: true,
   },
 ]
