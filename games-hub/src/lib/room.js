@@ -41,13 +41,29 @@ export async function joinRoom({ code, name }) {
   const ref = roomRef(code)
   const snap = await getDoc(ref)
   if (!snap.exists()) throw new Error('その合言葉の部屋は見つかりませんでした')
-  await setDoc(playerRef(code, uid), {
-    name,
-    score: 0,
-    isHost: false,
-    joinedAt: serverTimestamp(),
-  }, { merge: true })
+  // 既に参加済み(再接続)の場合はスコアや参加順を巻き戻さないよう名前だけ更新する
+  const existing = await getDoc(playerRef(code, uid))
+  if (existing.exists()) {
+    await setDoc(playerRef(code, uid), { name }, { merge: true })
+  } else {
+    await setDoc(playerRef(code, uid), {
+      name,
+      score: 0,
+      isHost: false,
+      joinedAt: serverTimestamp(),
+    })
+  }
   return { code, playerId: uid }
+}
+
+// 部屋の再読み込み時に「既にそのプレイヤーとして参加済みか」を確認するための問い合わせ
+export async function findExistingPlayer(code, playerId) {
+  const [roomSnap, playerSnap] = await Promise.all([
+    getDoc(roomRef(code)),
+    getDoc(playerRef(code, playerId)),
+  ])
+  if (!roomSnap.exists() || !playerSnap.exists()) return null
+  return { code, playerId }
 }
 
 export async function leaveRoom({ code, playerId }) {
