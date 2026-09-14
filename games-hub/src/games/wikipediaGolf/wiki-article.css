@@ -1,0 +1,23 @@
+.wiki-article {
+  max-height: 48vh;
+  overflow-y: auto;
+  background: #0b0b16;
+  border: 2px solid var(--dq-border-dim);
+  border-radius: 2px;
+  padding: 14px;
+  margin-top: 4px;
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--text-hi);
+}
+
+.wiki-article a { color: var(--amber-400); text-decoration: underline; cursor: pointer; }
+.wiki-article a.new { color: var(--text-lo); text-decoration: line-through; cursor: default; }
+.wiki-article img { max-width: 100%; height: auto; }
+.wiki-article table { max-width: 100%; overflow-x: auto; display: block; font-size: 12px; }
+.wiki-article .infobox { width: 100% !important; float: none !important; margin: 0 0 12px; }
+.wiki-article .thumb { max-width: 100%; float: none !important; margin: 8px 0; }
+.wiki-article .mw-editsection { display: none; }
+.wiki-article sup.reference { color: var(--text-lo); }
+.wiki-article h2, .wiki-article h3 { color: var(--amber-400); border-bottom: 1px solid var(--dq-border-dim); padding-bottom: 4px; margin-top: 18px; }
+.wiki-article .hatnote { color: var(--text-lo); font-size: 12px; }
