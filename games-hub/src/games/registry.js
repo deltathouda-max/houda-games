@@ -1,4 +1,5 @@
 import SoreGaSeikai from './soreGaSeikai/SoreGaSeikai.jsx'
+import Othello from './othello/Othello.jsx'
 
 // 今後オセロ・hit and blow等を追加する際はここに登録するだけでハブ・ロビーから遊べるようにする
 export const GAMES = [
@@ -14,11 +15,11 @@ export const GAMES = [
   {
     id: 'othello',
     name: 'オセロ',
-    description: '準備中',
+    description: '定番の陣取り対戦(2人用)',
     minPlayers: 2,
     maxPlayers: 2,
-    component: null,
-    available: false,
+    component: Othello,
+    available: true,
   },
   {
     id: 'hit-and-blow',
