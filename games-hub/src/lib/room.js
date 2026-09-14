@@ -109,6 +109,13 @@ export async function updateSettings(code, settings) {
   await updateDoc(roomRef(code), { settings })
 }
 
+// ロビーを経由せず(参加者確認・ゲーム開始ボタンを省略して)その場でもう一度始める。
+// スコアは各プレイヤー本人しか書き換えられない(Firestoreルール)ため、ホストからは
+// リセットせず、その部屋での通算成績としてそのまま積み上げる
+export async function rematch(code) {
+  await updateDoc(roomRef(code), { round: null })
+}
+
 export async function startGame(code) {
   await updateDoc(roomRef(code), { status: 'playing' })
 }

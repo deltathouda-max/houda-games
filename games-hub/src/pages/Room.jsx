@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { subscribeRoom, subscribePlayers, leaveRoom, startGame, backToLobby } from '../lib/room.js'
+import { subscribeRoom, subscribePlayers, leaveRoom, startGame, backToLobby, rematch } from '../lib/room.js'
 import { getGame } from '../games/registry.js'
 import { playFanfare } from '../lib/sound.js'
 import { vibrateSuccess } from '../lib/haptics.js'
@@ -106,9 +106,14 @@ export default function Room({ code, playerId, onLeave }) {
               </div>
             ))}
             {isHost && (
-              <button className="btn btn-ghost" style={{ marginTop: 12, width: '100%' }} onClick={() => backToLobby(code)}>
-                ロビーに戻る
-              </button>
+              <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
+                <button className="btn btn-amber" style={{ flex: 1 }} onClick={() => rematch(code)}>
+                  もう一度
+                </button>
+                <button className="btn btn-ghost" style={{ flex: 1 }} onClick={() => backToLobby(code)}>
+                  ロビーに戻る
+                </button>
+              </div>
             )}
           </div>
         </>
