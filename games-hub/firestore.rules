@@ -1,0 +1,20 @@
+rules_version = '2';
+
+// 友達内で合言葉(部屋コード)を共有して遊ぶカジュアルなパーティーゲーム向けの簡易ルール。
+// 匿名認証済みであれば部屋の状態を更新できる(ホスト権限のチェックはアプリ側のUIで行う)。
+// 各プレイヤーの参加者ドキュメントは本人(uid)のみが作成・更新・削除できる。
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /rooms/{roomId} {
+      allow read: if true;
+      allow create: if request.auth != null;
+      allow update: if request.auth != null;
+      allow delete: if false;
+
+      match /players/{playerId} {
+        allow read: if true;
+        allow write: if request.auth != null && request.auth.uid == playerId;
+      }
+    }
+  }
+}
