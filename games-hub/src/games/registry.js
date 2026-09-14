@@ -1,15 +1,18 @@
-import SoreGaSeikai from './soreGaSeikai/SoreGaSeikai.jsx'
-import SoreGaSeikaiLobbySettings from './soreGaSeikai/SoreGaSeikaiLobbySettings.jsx'
-import Othello from './othello/Othello.jsx'
-import HitAndBlow from './hitAndBlow/HitAndBlow.jsx'
-import KyuMasuShogi from './kyuMasuShogi/KyuMasuShogi.jsx'
-import KyuMasuShogiLobbySettings from './kyuMasuShogi/KyuMasuShogiLobbySettings.jsx'
-import ConnectFour from './connectFour/ConnectFour.jsx'
-import Yacht from './yacht/Yacht.jsx'
-import Chinchiro from './chinchiro/Chinchiro.jsx'
-import WordDrop from './wordDrop/WordDrop.jsx'
-import WordDropLobbySettings from './wordDrop/WordDropLobbySettings.jsx'
-import WikipediaGolf from './wikipediaGolf/WikipediaGolf.jsx'
+import { lazy } from 'react'
+
+// 各ゲームは遊ばれるまで読み込まなくて良いので、動的importで初回ロードを軽くする
+const SoreGaSeikai = lazy(() => import('./soreGaSeikai/SoreGaSeikai.jsx'))
+const SoreGaSeikaiLobbySettings = lazy(() => import('./soreGaSeikai/SoreGaSeikaiLobbySettings.jsx'))
+const Othello = lazy(() => import('./othello/Othello.jsx'))
+const HitAndBlow = lazy(() => import('./hitAndBlow/HitAndBlow.jsx'))
+const KyuMasuShogi = lazy(() => import('./kyuMasuShogi/KyuMasuShogi.jsx'))
+const KyuMasuShogiLobbySettings = lazy(() => import('./kyuMasuShogi/KyuMasuShogiLobbySettings.jsx'))
+const ConnectFour = lazy(() => import('./connectFour/ConnectFour.jsx'))
+const Yacht = lazy(() => import('./yacht/Yacht.jsx'))
+const Chinchiro = lazy(() => import('./chinchiro/Chinchiro.jsx'))
+const WordDrop = lazy(() => import('./wordDrop/WordDrop.jsx'))
+const WordDropLobbySettings = lazy(() => import('./wordDrop/WordDropLobbySettings.jsx'))
+const WikipediaGolf = lazy(() => import('./wikipediaGolf/WikipediaGolf.jsx'))
 
 // 今後オセロ・hit and blow等を追加する際はここに登録するだけでハブ・ロビーから遊べるようにする
 export const GAMES = [

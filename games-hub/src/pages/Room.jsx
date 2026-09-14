@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { Suspense, useEffect, useRef, useState } from 'react'
 import { subscribeRoom, subscribePlayers, leaveRoom, startGame, backToLobby, rematch } from '../lib/room.js'
 import { getGame } from '../games/registry.js'
 import { playFanfare } from '../lib/sound.js'
@@ -81,7 +81,11 @@ export default function Room({ code, playerId, onLeave }) {
 
           {isHost && (
             <>
-              {game?.lobbySettings && <game.lobbySettings code={code} room={room} />}
+              {game?.lobbySettings && (
+                <Suspense fallback={null}>
+                  <game.lobbySettings code={code} room={room} />
+                </Suspense>
+              )}
               <button
                 className="btn btn-amber"
                 style={{ width: '100%', marginTop: 20 }}
@@ -100,7 +104,9 @@ export default function Room({ code, playerId, onLeave }) {
 
       {room.status === 'playing' && game?.component && (
         <>
-          <game.component code={code} playerId={playerId} room={room} players={players} isHost={isHost} />
+          <Suspense fallback={<div className="card"><p className="subtitle">読み込み中…</p></div>}>
+            <game.component code={code} playerId={playerId} room={room} players={players} isHost={isHost} />
+          </Suspense>
           <div className="card">
             <div className="title" style={{ fontSize: 14 }}>スコア</div>
             {[...players].sort((a, b) => (b.score || 0) - (a.score || 0)).map((p) => (
