@@ -1,5 +1,6 @@
 import SoreGaSeikai from './soreGaSeikai/SoreGaSeikai.jsx'
 import Othello from './othello/Othello.jsx'
+import HitAndBlow from './hitAndBlow/HitAndBlow.jsx'
 
 // 今後オセロ・hit and blow等を追加する際はここに登録するだけでハブ・ロビーから遊べるようにする
 export const GAMES = [
@@ -24,11 +25,11 @@ export const GAMES = [
   {
     id: 'hit-and-blow',
     name: 'Hit and Blow',
-    description: '準備中',
+    description: '3桁の数字を当て合う推理ゲーム(2人用)',
     minPlayers: 2,
     maxPlayers: 2,
-    component: null,
-    available: false,
+    component: HitAndBlow,
+    available: true,
   },
 ]
 
