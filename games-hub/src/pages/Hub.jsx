@@ -25,7 +25,7 @@ export default function Hub({ onEnterRoom, prefillCode }) {
     if (!name.trim() || !code.trim()) return
     setBusy(true); setError('')
     try {
-      const { code: joinedCode, playerId } = await joinRoom({ code: code.trim().toUpperCase(), name: name.trim() })
+      const { code: joinedCode, playerId } = await joinRoom({ code: code.trim(), name: name.trim() })
       onEnterRoom({ code: joinedCode, playerId })
     } catch (e) {
       setError(e.message)
@@ -70,9 +70,10 @@ export default function Hub({ onEnterRoom, prefillCode }) {
           className="input"
           style={{ marginBottom: 12 }}
           value={code}
-          onChange={(e) => setCode(e.target.value.toUpperCase())}
-          placeholder="部屋の合言葉 (例: AB3XZ)"
-          maxLength={8}
+          onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
+          placeholder="部屋の合言葉 (例: 482)"
+          inputMode="numeric"
+          maxLength={3}
         />
       )}
       <input

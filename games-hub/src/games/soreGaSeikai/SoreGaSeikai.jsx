@@ -65,7 +65,7 @@ export default function SoreGaSeikai({ code, playerId, room, players, isHost }) 
   if (!round) {
     return (
       <div className="card">
-        <div className="eyebrow">それが正解</div>
+        <div className="eyebrow">激論！朝までそれ正解！</div>
         <div className="title">最初のお題を出しましょう</div>
         <p className="subtitle">全員揃ったらホストがお題を引きます。</p>
         {isHost ? (
