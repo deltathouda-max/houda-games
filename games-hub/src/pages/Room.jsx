@@ -1,13 +1,6 @@
 import { useEffect, useState } from 'react'
-import { subscribeRoom, subscribePlayers, leaveRoom, updateSettings, startGame, backToLobby } from '../lib/room.js'
+import { subscribeRoom, subscribePlayers, leaveRoom, startGame, backToLobby } from '../lib/room.js'
 import { getGame } from '../games/registry.js'
-
-const TIMER_OPTIONS = [
-  { value: 0, label: 'なし' },
-  { value: 30, label: '30秒' },
-  { value: 60, label: '60秒' },
-  { value: 90, label: '90秒' },
-]
 
 export default function Room({ code, playerId, onLeave }) {
   const [room, setRoom] = useState(null)
@@ -68,19 +61,7 @@ export default function Room({ code, playerId, onLeave }) {
 
           {isHost && (
             <>
-              <div style={{ marginTop: 20, marginBottom: 8, fontSize: 13, color: 'var(--text-mid)' }}>回答の制限時間</div>
-              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                {TIMER_OPTIONS.map((opt) => (
-                  <button
-                    key={opt.value}
-                    className="btn btn-ghost"
-                    style={room.settings?.timerSeconds === opt.value ? { borderColor: 'var(--amber-500)', color: 'var(--amber-400)' } : {}}
-                    onClick={() => updateSettings(code, { timerSeconds: opt.value })}
-                  >
-                    {opt.label}
-                  </button>
-                ))}
-              </div>
+              {game?.lobbySettings && <game.lobbySettings code={code} room={room} />}
               <button
                 className="btn btn-amber"
                 style={{ width: '100%', marginTop: 20 }}
