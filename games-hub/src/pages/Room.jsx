@@ -117,7 +117,7 @@ export default function Room({ code, playerId, onLeave }) {
             {[...players].sort((a, b) => (b.score || 0) - (a.score || 0)).map((p) => (
               <div key={p.id} className="player-row">
                 <span>{p.name}{p.isHost && <span className="badge" style={{ marginLeft: 8 }}>ホスト</span>}</span>
-                <strong>{p.score || 0}</strong>
+                <strong key={p.score || 0} className="score-pulse">{p.score || 0}</strong>
               </div>
             ))}
             {isHost && (

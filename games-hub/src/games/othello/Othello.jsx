@@ -78,10 +78,10 @@ export default function Othello({ code, playerId, room, players, isHost }) {
           const idx = r * SIZE + c
           const v = board[idx]
           if (v) {
-            return <div style={{ width: '78%', height: '78%', borderRadius: '50%', background: DISC[v], border: '1px solid var(--navy-600)' }} />
+            return <div key={v} className="board-piece" style={{ width: '78%', height: '78%', borderRadius: '50%', background: DISC[v], border: '1px solid var(--dq-border-dim)' }} />
           }
           if (isMyTurn && legalMoves.includes(idx)) {
-            return <div style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--amber-500)', opacity: 0.6 }} />
+            return <div className="board-piece" style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--amber-500)', opacity: 0.6 }} />
           }
           return null
         }}

@@ -14,8 +14,8 @@ export default function TurnBoard({ rows, cols, cellPx = 40, gap = 4, renderCell
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            background: 'var(--navy-800)',
-            border: '1px solid var(--navy-700)',
+            background: 'var(--dq-window)',
+            border: '1px solid var(--dq-border-dim)',
             borderRadius: 4,
             cursor: onCellClick ? 'pointer' : 'default',
           }}

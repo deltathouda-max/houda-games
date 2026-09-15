@@ -70,7 +70,7 @@ export default function ConnectFour({ code, playerId, room, players, isHost }) {
               disabled={!isMyTurn || full}
               style={{
                 width: 36, height: 28, borderRadius: 6, border: 'none',
-                background: isMyTurn && !full ? 'var(--amber-500)' : 'var(--navy-700)',
+                background: isMyTurn && !full ? 'var(--amber-500)' : 'var(--dq-border-dim)',
                 color: isMyTurn && !full ? '#241400' : 'var(--text-lo)',
                 cursor: isMyTurn && !full ? 'pointer' : 'not-allowed',
                 fontWeight: 700,
@@ -87,7 +87,7 @@ export default function ConnectFour({ code, playerId, room, players, isHost }) {
         renderCell={(r, c) => {
           const owner = state.board[r * COLS + c]
           if (!owner) return null
-          return <div style={{ width: '80%', height: '80%', borderRadius: '50%', background: DISC[owner], border: '1px solid var(--navy-600)' }} />
+          return <div className="board-piece" style={{ width: '80%', height: '80%', borderRadius: '50%', background: DISC[owner], border: '1px solid var(--dq-border-dim)' }} />
         }}
       />
     </div>

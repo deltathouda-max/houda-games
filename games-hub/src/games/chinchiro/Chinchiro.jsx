@@ -86,10 +86,11 @@ export default function Chinchiro({ code, playerId, room, players, isHost }) {
           <div style={{ display: 'flex', gap: 10, justifyContent: 'center', margin: '16px 0' }}>
             {state.currentDice.map((d, i) => (
               <div
-                key={i}
+                key={`${i}-${state.turnIndex}-${state.rollsUsed}`}
+                className="dice-rolling"
                 style={{
                   width: 48, height: 48, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: 22, fontWeight: 800, background: 'var(--navy-800)', border: '1px solid var(--navy-600)',
+                  fontSize: 22, fontWeight: 800, background: 'var(--dq-window)', border: '1px solid var(--dq-border-dim)',
                 }}
               >
                 {d}

@@ -103,7 +103,7 @@ export default function KyuMasuShogi({ code, playerId, room, players, isHost }) 
                 width: 28, height: 28, borderRadius: 6, margin: '0 3px',
                 background: st.bg, color: st.fg, fontSize: 14, fontWeight: 700,
                 cursor: selectable ? 'pointer' : 'default',
-                border: isSelected ? '2px solid var(--amber-500)' : '1px solid var(--navy-600)',
+                border: isSelected ? '2px solid var(--amber-500)' : '1px solid var(--dq-border-dim)',
               }}
             >
               {pieceLabel({ kind, promoted: false, owner: role })}
@@ -137,7 +137,7 @@ export default function KyuMasuShogi({ code, playerId, room, players, isHost }) 
           if (piece) {
             const st = OWNER_STYLE[piece.owner]
             return (
-              <div style={{
+              <div className="board-piece" style={{
                 width: '82%', height: '82%', borderRadius: 8,
                 background: st.bg, color: st.fg,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -149,7 +149,7 @@ export default function KyuMasuShogi({ code, playerId, room, players, isHost }) 
               </div>
             )
           }
-          if (isTarget) return <div style={{ width: 10, height: 10, borderRadius: '50%', background: 'var(--amber-500)', opacity: 0.6 }} />
+          if (isTarget) return <div className="board-piece" style={{ width: 10, height: 10, borderRadius: '50%', background: 'var(--amber-500)', opacity: 0.6 }} />
           return null
         }}
       />
