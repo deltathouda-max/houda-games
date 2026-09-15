@@ -50,6 +50,7 @@ export default function Hub({ onEnterRoom, prefillCode }) {
               disabled={!g.available}
               onClick={() => { setSelectedGame(g); setMode('create') }}
             >
+              {g.icon && <span className="game-item-icon">{g.icon}</span>}
               <div style={{ flex: 1 }}>
                 <div className="game-item-name">{g.name}</div>
                 <div className="game-item-desc">{g.description}</div>
