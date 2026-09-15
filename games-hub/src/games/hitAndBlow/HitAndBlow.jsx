@@ -33,6 +33,7 @@ export default function HitAndBlow({ code: roomCode, playerId, room, players, is
   const myCodeSet = Boolean(codes[playerId])
   const isMyTurn = state.phase === 'guessing' && state.turn === playerId
   const myGuesses = state.guesses?.[playerId] || []
+  const opponentGuesses = (opponentId && state.guesses?.[opponentId]) || []
 
   async function submitCode() {
     if (!isValidCode(codeInput)) return
@@ -122,13 +123,26 @@ export default function HitAndBlow({ code: roomCode, playerId, room, players, is
             </div>
           )}
 
-          <div style={{ fontSize: 12, color: 'var(--text-lo)', marginBottom: 6 }}>あなたの予想履歴</div>
-          {myGuesses.length === 0 && <p className="subtitle">まだ予想していません</p>}
-          {[...myGuesses].reverse().map((g, i) => (
-            <div key={i} className="answer-row">
-              {g.code} → {g.hits} Hit / {g.blows} Blow
+          <div style={{ display: 'flex', gap: 12 }}>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: 12, color: 'var(--text-lo)', marginBottom: 6 }}>あなたの予想履歴</div>
+              {myGuesses.length === 0 && <p className="subtitle" style={{ fontSize: 12 }}>まだ予想していません</p>}
+              {[...myGuesses].reverse().map((g, i) => (
+                <div key={i} className="answer-row" style={{ padding: '8px 10px', fontSize: 13 }}>
+                  {g.code} → {g.hits}H/{g.blows}B
+                </div>
+              ))}
             </div>
-          ))}
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: 12, color: 'var(--text-lo)', marginBottom: 6 }}>{opponent?.name ?? '相手'}の予想履歴</div>
+              {opponentGuesses.length === 0 && <p className="subtitle" style={{ fontSize: 12 }}>まだ予想していません</p>}
+              {[...opponentGuesses].reverse().map((g, i) => (
+                <div key={i} className="answer-row" style={{ padding: '8px 10px', fontSize: 13 }}>
+                  {g.code} → {g.hits}H/{g.blows}B
+                </div>
+              ))}
+            </div>
+          </div>
         </>
       )}
     </div>

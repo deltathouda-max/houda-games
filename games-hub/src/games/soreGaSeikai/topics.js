@@ -32,5 +32,5 @@ export const THEMES = [
 export function drawTopic() {
   const letter = LETTERS[Math.floor(Math.random() * LETTERS.length)]
   const theme = THEMES[Math.floor(Math.random() * THEMES.length)]
-  return { letter, theme, text: `「${letter}」から始まる${theme}` }
+  return { letter, theme, text: `「${letter}」から始まる${theme}は？` }
 }

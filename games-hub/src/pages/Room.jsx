@@ -59,7 +59,7 @@ export default function Room({ code, playerId, onLeave }) {
   }
 
   return (
-    <div style={{ width: '100%', maxWidth: 480, display: 'flex', flexDirection: 'column', gap: 16 }}>
+    <div style={{ width: '100%', maxWidth: game?.wideLayout ? 760 : 480, display: 'flex', flexDirection: 'column', gap: 16 }}>
       <ReactionOverlay code={code} />
       <div className="card" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>

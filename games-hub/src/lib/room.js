@@ -22,7 +22,7 @@ export async function createRoom({ gameId, hostName }) {
       gameId,
       hostId: uid,
       status: 'lobby',
-      settings: { timerSeconds: 0 },
+      settings: { timerSeconds: 60 },
       round: null,
       createdAt: serverTimestamp(),
       // 合言葉が3桁の数字(最大1000通り)しかないため、遊び終わった部屋を
