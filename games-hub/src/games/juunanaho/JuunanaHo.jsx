@@ -1,18 +1,22 @@
 import { useEffect, useMemo, useState } from 'react'
 import { updateRoom, guardedUpdate, addScore } from '../../lib/room.js'
 import useTwoPlayerTurns from '../boardShared/useTwoPlayerTurns.js'
-import { ALL_TILES, isComplete14, isTenpai, sortTiles, tileLabel, tileSuitClass, ANTE_17HO, MAX_TURNS } from './juunanahoLogic.js'
+import { ALL_TILES, isTenpai, sortTiles, tileLabel, tileSuitClass, ANTE_17HO, MAX_TURNS } from './juunanahoLogic.js'
+import { evaluateWin, tenpaiHasManganWait, nextDoraTile, randomDoraIndicator } from './mahjongScore.js'
 
 const CHIPS_17HO = 1000
 
 function startHand(dealerId, otherId, chips) {
   const ante = { [dealerId]: Math.min(ANTE_17HO, chips[dealerId]), [otherId]: Math.min(ANTE_17HO, chips[otherId]) }
   const nextChips = { [dealerId]: chips[dealerId] - ante[dealerId], [otherId]: chips[otherId] - ante[otherId] }
+  const doraIndicator = randomDoraIndicator()
   return {
     dealerId,
     chips: nextChips,
     pot: ante[dealerId] + ante[otherId],
     phase: 'selecting',
+    doraIndicator,
+    doraTile: nextDoraTile(doraIndicator),
     hand: { [dealerId]: null, [otherId]: null },
     discardPool: { [dealerId]: null, [otherId]: null },
     discarded: { [dealerId]: [], [otherId]: [] },
@@ -61,7 +65,14 @@ export default function JuunanaHo({ code, playerId, room, players, isHost }) {
 
   useEffect(() => { setSelected([]) }, [state?.handIndex])
 
-  const tenpaiInfo = useMemo(() => isTenpai(sortTiles(selected)), [selected])
+  const tenpaiInfo = useMemo(() => {
+    if (selected.length !== 13) return { tenpai: false, manganOk: false, waits: [] }
+    const sorted = sortTiles(selected)
+    const { tenpai, waits } = isTenpai(sorted)
+    if (!tenpai) return { tenpai: false, manganOk: false, waits: [] }
+    const { ok, manganWaits } = tenpaiHasManganWait(sorted, state?.doraTile)
+    return { tenpai: true, manganOk: ok, waits, manganWaits }
+  }, [selected, state?.doraTile])
 
   if (!first || !second) {
     return (
@@ -119,7 +130,7 @@ export default function JuunanaHo({ code, playerId, room, players, isHost }) {
   }
 
   async function confirmHand() {
-    if (busy || selected.length !== 13 || !tenpaiInfo.tenpai) return
+    if (busy || selected.length !== 13 || !tenpaiInfo.manganOk) return
     setBusy(true)
     try {
       const hand = sortTiles(selected)
@@ -152,13 +163,14 @@ export default function JuunanaHo({ code, playerId, room, players, isHost }) {
     setBusy(true)
     try {
       const myHand = state.hand[playerId]
-      if (!isComplete14([...myHand, state.pendingDiscard.tile])) return
+      const result = evaluateWin(myHand, state.pendingDiscard.tile, state.doraTile)
+      if (!result.manganOrAbove) return
       const chips = { ...state.chips, [playerId]: (state.chips[playerId] || 0) + state.pot }
       await updateRoom(code, {
         'juunanaho.chips': chips,
         'juunanaho.pot': 0,
         'juunanaho.phase': 'result',
-        'juunanaho.result': { type: 'ron', winnerId: playerId, tile: state.pendingDiscard.tile },
+        'juunanaho.result': { type: 'ron', winnerId: playerId, tile: state.pendingDiscard.tile, yaku: result.yaku, han: result.totalHan, dora: result.dora },
       })
     } finally { setBusy(false) }
   }
@@ -168,7 +180,7 @@ export default function JuunanaHo({ code, playerId, room, players, isHost }) {
     setBusy(true)
     try {
       const myHand = state.hand[playerId]
-      const wasWait = isComplete14([...myHand, state.pendingDiscard.tile])
+      const wasWait = evaluateWin(myHand, state.pendingDiscard.tile, state.doraTile).manganOrAbove
       const newTurnCount = state.turnCount + 1
       if (newTurnCount >= MAX_TURNS) {
         const idA = state.dealerId
@@ -220,7 +232,8 @@ export default function JuunanaHo({ code, playerId, room, players, isHost }) {
 
   const myTurn = state.phase === 'discarding' && state.turnPlayerId === playerId
   const canReactToRon = state.phase === 'ronCheck' && state.pendingDiscard?.by !== playerId
-  const canRonNow = canReactToRon && !state.furiten[playerId] && state.hand[playerId] && isComplete14([...state.hand[playerId], state.pendingDiscard.tile])
+  const pendingEval = canReactToRon && state.hand[playerId] ? evaluateWin(state.hand[playerId], state.pendingDiscard.tile, state.doraTile) : null
+  const canRonNow = canReactToRon && !state.furiten[playerId] && pendingEval?.manganOrAbove
 
   return (
     <div className="card">
@@ -236,18 +249,32 @@ export default function JuunanaHo({ code, playerId, room, players, isHost }) {
         )}
       </div>
 
-      <div style={{ display: 'flex', gap: 16, marginBottom: 12 }}>
+      <div style={{ display: 'flex', gap: 16, marginBottom: 12, flexWrap: 'wrap' }}>
         <span className="chip-count">あなた: {myChips}</span>
         <span className="chip-count">{opponent.name}: {oppChips}</span>
         <span className="chip-count" style={{ color: 'var(--text-mid)' }}>POT: {state.pot}</span>
         {state.phase !== 'selecting' && <span style={{ fontSize: 12, color: 'var(--text-lo)' }}>{Math.floor(state.turnCount / 2) + 1}巡目 / 17巡</span>}
       </div>
 
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+        <span style={{ fontSize: 12, color: 'var(--text-lo)' }}>ドラ表示牌</span>
+        <div className={`mahjong-tile ${tileSuitClass(state.doraIndicator)}`} style={{ cursor: 'default', width: 32, height: 44, fontSize: 13 }}>{tileLabel(state.doraIndicator)}</div>
+        <span style={{ fontSize: 12, color: 'var(--text-lo)' }}>→ドラ:</span>
+        <div className={`mahjong-tile ${tileSuitClass(state.doraTile)}`} style={{ cursor: 'default', width: 32, height: 44, fontSize: 13, borderColor: 'var(--amber-400)' }}>{tileLabel(state.doraTile)}</div>
+      </div>
+
       {state.phase === 'selecting' && !state.ready[playerId] && (
         <>
           <p className="subtitle">
-            34種の牌から13枚を選び、あと1枚であがれる「テンパイ」の形を作ってください。
-            {' '}選択中: {selected.length}/13 ・ {tenpaiInfo.tenpai ? <strong style={{ color: 'var(--success)' }}>テンパイです</strong> : <span style={{ color: 'var(--danger)' }}>まだテンパイではありません</span>}
+            34種の牌から13枚を選び、あと1枚であがれば「満貫以上」になるテンパイの形を作ってください
+            (役なしではあがれません。ドラは翻数に加算されます)。
+            {' '}選択中: {selected.length}/13{selected.length === 13 && (
+              !tenpaiInfo.tenpai
+                ? <span style={{ color: 'var(--danger)' }}> ・ まだテンパイではありません</span>
+                : tenpaiInfo.manganOk
+                  ? <strong style={{ color: 'var(--success)' }}> ・ 満貫以上の待ちがあります({tenpaiInfo.manganWaits.map(tileLabel).join('・')})</strong>
+                  : <span style={{ color: 'var(--danger)' }}> ・ テンパイですが満貫未満です(役が足りません)</span>
+            )}
           </p>
           {TILE_ROWS.map((row, i) => (
             <div key={i} style={{ display: 'flex', gap: 4, flexWrap: 'wrap', marginBottom: 6 }}>
@@ -262,7 +289,7 @@ export default function JuunanaHo({ code, playerId, room, players, isHost }) {
               ))}
             </div>
           ))}
-          <button className="btn btn-amber" style={{ width: '100%', marginTop: 12 }} disabled={busy || selected.length !== 13 || !tenpaiInfo.tenpai} onClick={confirmHand}>
+          <button className="btn btn-amber" style={{ width: '100%', marginTop: 12 }} disabled={busy || selected.length !== 13 || !tenpaiInfo.manganOk} onClick={confirmHand}>
             この手で決定
           </button>
         </>
@@ -300,12 +327,28 @@ export default function JuunanaHo({ code, playerId, room, players, isHost }) {
             {tileLabel(state.pendingDiscard.tile)}
           </div>
           {canReactToRon && (
-            <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
-              <button className="btn btn-ghost" style={{ flex: 1 }} disabled={busy} onClick={passRon}>スルー</button>
-              <button className="btn btn-amber" style={{ flex: 1 }} disabled={busy || !canRonNow} onClick={declareRon}>ロン！</button>
-            </div>
+            <>
+              {pendingEval?.valid && !pendingEval.manganOrAbove && !state.furiten[playerId] && (
+                <p style={{ color: 'var(--text-lo)', fontSize: 12, marginTop: 4 }}>
+                  あがれる形ですが役が足りず満貫未満のためロンできません
+                  {pendingEval.yaku.length > 0 && `(${pendingEval.yaku.map((y) => `${y.name}${y.han}翻`).join('・')})`}
+                </p>
+              )}
+              <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
+                <button className="btn btn-ghost" style={{ flex: 1 }} disabled={busy} onClick={passRon}>スルー</button>
+                <button className="btn btn-amber" style={{ flex: 1 }} disabled={busy || !canRonNow} onClick={declareRon}>ロン！</button>
+              </div>
+            </>
           )}
         </div>
+      )}
+
+      {state.phase === 'result' && state.result.type === 'ron' && (
+        <p className="subtitle" style={{ textAlign: 'center' }}>
+          役: {state.result.yaku?.map((y) => `${y.name}(${y.han}翻)`).join('・')}
+          {state.result.dora > 0 && ` ・ ドラ${state.result.dora}翻`}
+          {' '}・ 計{state.result.han}翻
+        </p>
       )}
 
       {state.phase === 'result' && isHost && (
@@ -314,8 +357,11 @@ export default function JuunanaHo({ code, playerId, room, players, isHost }) {
 
       <p className="subtitle" style={{ marginTop: 16 }}>
         34種の牌から13枚を選んでテンパイ(あと1枚であがれる形)を作り、残り21枚を1枚ずつ切っていきます。
-        相手の捨て牌が自分のあがり牌ならロンで勝ち、見逃すとそのハンドの間はロンできなくなります(フリテン)。
-        17巡で決着しなければ流局(山分け)です。役の判定エンジンは省略し、4面子1雀頭が揃えばあがりとしています。
+        相手の捨て牌が自分のあがり牌で、かつ満貫以上(4翻以上)ならロンで勝ちです。
+        満貫未満の場合や見逃した場合、そのハンドの間はロンできなくなります(フリテン)。
+        17巡で決着しなければ流局(山分け)です。
+        ※実現できる役はタンヤオ・一気通貫・三色同順・チャンタ/ジュンチャンとドラのみに絞った簡易ルールです
+        (このゲームの性質上、刻子や七対子は作れないため)。
       </p>
     </div>
   )
