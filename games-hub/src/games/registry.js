@@ -13,6 +13,9 @@ const Chinchiro = lazy(() => import('./chinchiro/Chinchiro.jsx'))
 const WordDrop = lazy(() => import('./wordDrop/WordDrop.jsx'))
 const WordDropLobbySettings = lazy(() => import('./wordDrop/WordDropLobbySettings.jsx'))
 const WikipediaGolf = lazy(() => import('./wikipediaGolf/WikipediaGolf.jsx'))
+const ECard = lazy(() => import('./ecard/ECard.jsx'))
+const OnePoker = lazy(() => import('./onePoker/OnePoker.jsx'))
+const JuunanaHo = lazy(() => import('./juunanaho/JuunanaHo.jsx'))
 
 // 今後オセロ・hit and blow等を追加する際はここに登録するだけでハブ・ロビーから遊べるようにする
 export const GAMES = [
@@ -20,6 +23,7 @@ export const GAMES = [
     id: 'sore-ga-seikai',
     name: '激論！朝までそれ正解！',
     description: 'お題に一言で回答し、みんなで一番おもしろい答えを選ぶ',
+    icon: '🎤',
     minPlayers: 3,
     maxPlayers: 12,
     component: SoreGaSeikai,
@@ -31,6 +35,7 @@ export const GAMES = [
     id: 'othello',
     name: 'オセロ',
     description: '定番の陣取り対戦(2人用)',
+    icon: '⚫',
     minPlayers: 2,
     maxPlayers: 2,
     component: Othello,
@@ -41,6 +46,7 @@ export const GAMES = [
     id: 'hit-and-blow',
     name: 'Hit and Blow',
     description: '3桁の数字を当て合う推理ゲーム(2人用)',
+    icon: '🔢',
     minPlayers: 2,
     maxPlayers: 2,
     component: HitAndBlow,
@@ -51,6 +57,7 @@ export const GAMES = [
     id: 'kyu-masu-shogi',
     name: '9マス将棋',
     description: '3×3の盤で将棋の駒を動かす対戦(2人用)',
+    icon: '♟️',
     minPlayers: 2,
     maxPlayers: 2,
     component: KyuMasuShogi,
@@ -62,6 +69,7 @@ export const GAMES = [
     id: 'connect-four',
     name: 'コネクトフォー',
     description: '縦・横・斜めに4つ並べたら勝ち(2人用)',
+    icon: '🔴',
     minPlayers: 2,
     maxPlayers: 2,
     component: ConnectFour,
@@ -72,6 +80,7 @@ export const GAMES = [
     id: 'yacht',
     name: 'ヨット',
     description: 'サイコロを振って役を揃える定番ダイスゲーム(2〜6人)',
+    icon: '🎲',
     minPlayers: 2,
     maxPlayers: 6,
     component: Yacht,
@@ -82,6 +91,7 @@ export const GAMES = [
     id: 'chinchiro',
     name: 'チンチロ',
     description: 'サイコロ3つで役を競う伝統のダイスゲーム(2〜6人)',
+    icon: '🎰',
     minPlayers: 2,
     maxPlayers: 6,
     component: Chinchiro,
@@ -92,6 +102,7 @@ export const GAMES = [
     id: 'word-drop',
     name: 'ワード落とし',
     description: '親だけがお題を知り、会話にさりげなく混ぜる。子はそれを聞いて推理する(3人以上)',
+    icon: '💬',
     minPlayers: 3,
     maxPlayers: 12,
     component: WordDrop,
@@ -103,12 +114,46 @@ export const GAMES = [
     id: 'wikipedia-golf',
     name: 'Wikipediaゴルフ',
     description: 'スタートの記事からリンクを辿り、ゴールの記事に一番早く着いた人の勝ち(2人以上)',
+    icon: '📖',
     minPlayers: 2,
     maxPlayers: 12,
     component: WikipediaGolf,
     available: true,
     wideLayout: true,
     rules: 'スタートの記事が表示されるので、記事内のリンクをクリックして次の記事へ移動していきます。\nリンクを辿って、指定されたゴールの記事に一番早くたどり着いた人の勝ちです。\nクリック数はリーダーボードで他の人にも見えています。',
+  },
+  {
+    id: 'ecard',
+    name: 'Eカード',
+    description: 'カイジ流の心理戦カードバトル。皇帝・市民・奴隷の三すくみ(2人用)',
+    icon: '👑',
+    minPlayers: 2,
+    maxPlayers: 2,
+    component: ECard,
+    available: true,
+    rules: '皇帝1枚・市民8枚・奴隷1枚の計10枚を、皇帝側(皇帝+市民4枚)と奴隷側(奴隷+市民4枚)に分けて持ちます。\n毎ラウンド、お互いカードを1枚伏せて出し、同時にめくります。\n市民は奴隷に勝ち、奴隷は皇帝に勝ち、皇帝は市民に勝ちます。市民同士は引き分けです。\n5ラウンドで手札を使い切ると役割を交代して次の手が始まります。',
+  },
+  {
+    id: 'one-poker',
+    name: 'ワン・ポーカー',
+    description: 'カイジ流、1枚勝負のチップ制ポーカー(2人用)',
+    icon: '🃏',
+    minPlayers: 2,
+    maxPlayers: 2,
+    component: OnePoker,
+    available: true,
+    rules: '毎ハンド、2枚配られたカードから最終カードを1枚選びます(数字は2〜Aの順に強いですが、2はAにだけ勝てる特別ルールがあります)。\n自分のカードの手ごたえ(UP/DOWN)を頼りに、チェック・ベット・コール・フォールドで駆け引きします。\nショーダウンで数字が強い方が勝ち、賭けたチップを総取りします。\nチップがなくなったら負けです。',
+  },
+  {
+    id: 'juunanaho',
+    name: '17歩',
+    description: 'カイジ流、麻雀牌34種で戦う簡易ルールの心理戦(2人用)',
+    icon: '🀄',
+    minPlayers: 2,
+    maxPlayers: 2,
+    component: JuunanaHo,
+    available: true,
+    rules: '麻雀牌34種類(各1枚ずつ)から13枚を選び、あと1枚であがれる「テンパイ」の形を作ります。\n残り21枚が自分の捨て牌候補になり、交互に1枚ずつ切っていきます。\n相手の捨て牌が自分のあがり牌なら「ロン」で勝ち、見逃すとそのハンドの間はロンできなくなります(フリテン)。\n17巡で決着しなければ流局です。\n※役の判定エンジンは省略し、4面子1雀頭が揃えばあがりとする簡易ルールです。\n毎ハンドでチップを賭け、チップがなくなったら負けです。',
   },
 ]
 

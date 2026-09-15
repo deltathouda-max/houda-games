@@ -11,6 +11,17 @@
   --text-lo: #7A85A0;
   --danger: #FF6B61;
   --success: #5FD98F;
+
+  /* アクセントカラー: ゲームごとの色分け・チップ/カード表現などに使う */
+  --ruby-400: #FF6B8B;
+  --ruby-500: #E8385F;
+  --violet-400: #B592FF;
+  --violet-500: #8B5CF6;
+  --cyan-400: #5DE0E6;
+  --cyan-500: #22B8C4;
+  --emerald-400: #6EE7A8;
+  --emerald-500: #2FBE72;
+  --gold-300: #FFE29A;
 }
 
 * { box-sizing: border-box; }
@@ -21,7 +32,12 @@ html, body, #root {
 
 body {
   margin: 0;
-  background: var(--dq-bg);
+  min-height: 100%;
+  background:
+    radial-gradient(ellipse 900px 500px at 15% -10%, rgba(139, 92, 246, 0.16), transparent 60%),
+    radial-gradient(ellipse 700px 500px at 100% 10%, rgba(34, 184, 196, 0.14), transparent 55%),
+    radial-gradient(ellipse 800px 600px at 50% 100%, rgba(245, 166, 35, 0.10), transparent 60%),
+    var(--dq-bg);
   color: var(--text-hi);
   font-family: "DotGothic16", "Hiragino Sans", "Noto Sans JP", monospace;
   -webkit-font-smoothing: antialiased;
@@ -47,6 +63,7 @@ input, select {
 
 /* ドラクエ風ウィンドウ: 黒背景+白の二重線フレーム */
 .card {
+  position: relative;
   width: 100%;
   max-width: 480px;
   background: var(--dq-window);
@@ -57,6 +74,15 @@ input, select {
   padding: 22px;
   margin: 6px;
   animation: card-enter 0.25s ease-out;
+  overflow: hidden;
+}
+.card::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--violet-500), var(--cyan-500), var(--amber-500), var(--ruby-500));
+  opacity: 0.85;
 }
 
 @keyframes card-enter {
@@ -202,7 +228,97 @@ input, select {
   50% { box-shadow: inset 0 0 0 1px var(--amber-400), 0 0 14px rgba(255, 201, 77, 0.65); }
 }
 
-.game-item { animation: row-enter 0.2s ease-out; }
+.game-item { animation: row-enter 0.2s ease-out; position: relative; border-left-width: 4px; padding-left: 14px; }
+.game-item:nth-of-type(9n+1) { border-left-color: var(--amber-500); }
+.game-item:nth-of-type(9n+2) { border-left-color: var(--violet-500); }
+.game-item:nth-of-type(9n+3) { border-left-color: var(--cyan-500); }
+.game-item:nth-of-type(9n+4) { border-left-color: var(--ruby-500); }
+.game-item:nth-of-type(9n+5) { border-left-color: var(--emerald-500); }
+.game-item:nth-of-type(9n+6) { border-left-color: var(--amber-600); }
+.game-item:nth-of-type(9n+7) { border-left-color: var(--cyan-400); }
+.game-item:nth-of-type(9n+8) { border-left-color: var(--ruby-400); }
+.game-item:nth-of-type(9n+9) { border-left-color: var(--violet-400); }
+
+.game-item-icon {
+  font-size: 22px;
+  width: 34px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.badge-emperor { border-color: var(--gold-300); color: var(--gold-300); background: rgba(255, 226, 154, 0.08); }
+.badge-slave { border-color: var(--violet-400); color: var(--violet-400); background: rgba(181, 146, 255, 0.08); }
+.badge-citizen { border-color: var(--cyan-400); color: var(--cyan-400); background: rgba(93, 224, 230, 0.08); }
+
+.chip-count {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 700;
+  color: var(--gold-300);
+}
+.chip-count::before {
+  content: "";
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, var(--gold-300), var(--amber-600) 70%);
+  box-shadow: 0 0 0 2px rgba(255, 226, 154, 0.25), inset 0 0 0 2px rgba(0,0,0,0.35);
+}
+
+.playing-card {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 78px;
+  border-radius: 6px;
+  border: 2px solid var(--dq-border-dim);
+  font-weight: 800;
+  font-size: 22px;
+  background: linear-gradient(160deg, #1a1a28, #05050c);
+  color: var(--text-hi);
+  box-shadow: 0 2px 0 rgba(0,0,0,0.4);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.playing-card.is-back {
+  background: repeating-linear-gradient(45deg, #241a3d, #241a3d 6px, #1a1230 6px, #1a1230 12px);
+  border-color: var(--violet-400);
+}
+.playing-card.card-emperor { border-color: var(--gold-300); color: var(--gold-300); background: linear-gradient(160deg, #3a2e10, #100c02); }
+.playing-card.card-slave { border-color: var(--violet-400); color: var(--violet-400); background: linear-gradient(160deg, #2a1f45, #0d0918); }
+.playing-card.card-citizen { border-color: var(--cyan-400); color: var(--cyan-400); background: linear-gradient(160deg, #10333a, #061012); }
+.playing-card.card-high { border-color: var(--ruby-400); color: var(--ruby-400); }
+.playing-card.card-two { border-color: var(--violet-400); color: var(--violet-400); }
+.playing-card.selectable { cursor: pointer; }
+.playing-card.selectable:hover { transform: translateY(-4px); box-shadow: 0 8px 12px rgba(0,0,0,0.4); }
+.playing-card.is-selected { border-color: var(--amber-400); box-shadow: 0 0 0 2px rgba(255, 201, 77, 0.35); transform: translateY(-4px); }
+
+.mahjong-tile {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 46px;
+  border-radius: 4px;
+  border: 2px solid var(--dq-border-dim);
+  background: linear-gradient(160deg, #f4f0e4, #d8d2bd);
+  color: #1a1a1a;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+.mahjong-tile:hover { transform: translateY(-4px); box-shadow: 0 6px 10px rgba(0,0,0,0.35); }
+.mahjong-tile.is-selected { transform: translateY(-6px); box-shadow: 0 0 0 2px var(--amber-400); }
+.mahjong-tile.suit-man { color: var(--ruby-500); }
+.mahjong-tile.suit-pin { color: var(--cyan-500); }
+.mahjong-tile.suit-sou { color: var(--emerald-500); }
+.mahjong-tile.suit-honor { color: var(--amber-600); }
+.mahjong-tile:disabled { opacity: 0.35; cursor: not-allowed; }
+.mahjong-tile:disabled:hover { transform: none; box-shadow: none; }
 
 .board-piece {
   animation: piece-pop 0.2s ease-out;
