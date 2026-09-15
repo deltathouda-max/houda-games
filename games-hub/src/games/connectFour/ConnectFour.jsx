@@ -11,7 +11,7 @@ export default function ConnectFour({ code, playerId, room, players, isHost }) {
   const { first, second, myRole } = useTwoPlayerTurns(players, playerId)
 
   useEffect(() => {
-    if (isHost && !state && players.length >= 2) {
+    if (isHost && !state && players.length >= 1) {
       updateRoom(code, { connectFour: createInitialState() })
     }
   }, [isHost, state, players.length, code])
@@ -21,7 +21,7 @@ export default function ConnectFour({ code, playerId, room, players, isHost }) {
       <div className="card">
         <div className="eyebrow">コネクトフォー</div>
         <div className="title">準備中…</div>
-        <p className="subtitle">2人揃うと自動で始まります。</p>
+        <p className="subtitle">準備を始めています…</p>
       </div>
     )
   }
