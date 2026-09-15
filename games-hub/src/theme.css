@@ -56,6 +56,12 @@ input, select {
   border-radius: 2px;
   padding: 22px;
   margin: 6px;
+  animation: card-enter 0.25s ease-out;
+}
+
+@keyframes card-enter {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .eyebrow {
@@ -150,8 +156,24 @@ input, select {
   justify-content: space-between;
   padding: 10px 0;
   border-bottom: 1px dashed var(--dq-border-dim);
+  animation: row-enter 0.2s ease-out;
 }
 .player-row:last-child { border-bottom: none; }
+
+@keyframes row-enter {
+  from { opacity: 0; transform: translateX(-6px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.score-pulse {
+  display: inline-block;
+  animation: score-pulse 0.5s ease-out;
+}
+
+@keyframes score-pulse {
+  0% { transform: scale(1.5); color: var(--amber-400); }
+  100% { transform: scale(1); color: var(--text-hi); }
+}
 
 .room-code {
   font-family: "DotGothic16", monospace;
@@ -167,10 +189,37 @@ input, select {
   padding: 12px 14px;
   margin-bottom: 8px;
   cursor: pointer;
+  animation: row-enter 0.2s ease-out;
 }
 .answer-row.winner {
   border-color: var(--amber-400);
   box-shadow: inset 0 0 0 1px var(--amber-400);
+  animation: winner-glow 0.6s ease-in-out 3;
+}
+
+@keyframes winner-glow {
+  0%, 100% { box-shadow: inset 0 0 0 1px var(--amber-400); }
+  50% { box-shadow: inset 0 0 0 1px var(--amber-400), 0 0 14px rgba(255, 201, 77, 0.65); }
+}
+
+.game-item { animation: row-enter 0.2s ease-out; }
+
+.board-piece {
+  animation: piece-pop 0.2s ease-out;
+  transition: background-color 0.35s ease;
+}
+
+@keyframes piece-pop {
+  from { transform: scale(0.3); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.dice-rolling { animation: dice-roll 0.4s ease-in-out; }
+
+@keyframes dice-roll {
+  0% { transform: rotate(0deg) scale(1); }
+  40% { transform: rotate(200deg) scale(1.15); }
+  100% { transform: rotate(360deg) scale(1); }
 }
 
 .reaction-floater {

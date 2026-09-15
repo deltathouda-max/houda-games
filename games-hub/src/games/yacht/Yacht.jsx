@@ -87,13 +87,14 @@ export default function Yacht({ code, playerId, room, players, isHost }) {
           <div style={{ display: 'flex', gap: 8, justifyContent: 'center', margin: '12px 0' }}>
             {state.dice.map((d, i) => (
               <div
-                key={i}
+                key={state.held[i] ? `held-${i}` : `roll-${i}-${state.rollsUsed}`}
                 onClick={() => toggleHold(i)}
+                className={!state.held[i] && state.rollsUsed > 0 ? 'dice-rolling' : ''}
                 style={{
                   width: 44, height: 44, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center',
                   fontSize: 20, fontWeight: 800, cursor: canHold ? 'pointer' : 'default',
-                  background: state.held[i] ? 'rgba(245,166,35,0.15)' : 'var(--navy-800)',
-                  border: state.held[i] ? '2px solid var(--amber-500)' : '1px solid var(--navy-600)',
+                  background: state.held[i] ? 'rgba(245,166,35,0.15)' : 'var(--dq-window)',
+                  border: state.held[i] ? '2px solid var(--amber-500)' : '1px solid var(--dq-border-dim)',
                   color: state.rollsUsed === 0 ? 'var(--text-lo)' : 'var(--text-hi)',
                 }}
               >
@@ -126,7 +127,7 @@ export default function Yacht({ code, playerId, room, players, isHost }) {
           </thead>
           <tbody>
             {CATEGORIES.map((cat) => (
-              <tr key={cat.id} style={{ borderTop: '1px solid var(--navy-800)' }}>
+              <tr key={cat.id} style={{ borderTop: '1px solid var(--dq-window)' }}>
                 <td style={{ padding: '4px 8px' }}>
                   {isMyTurn && canPick && state.scores[playerId][cat.id] === null ? (
                     <button
@@ -145,7 +146,7 @@ export default function Yacht({ code, playerId, room, players, isHost }) {
                 ))}
               </tr>
             ))}
-            <tr style={{ borderTop: '2px solid var(--navy-600)', fontWeight: 700 }}>
+            <tr style={{ borderTop: '2px solid var(--dq-border-dim)', fontWeight: 700 }}>
               <td style={{ padding: '4px 8px' }}>合計</td>
               {state.order.map((pid) => (
                 <td key={pid} style={{ textAlign: 'center', padding: '4px 8px', color: 'var(--amber-400)' }}>
