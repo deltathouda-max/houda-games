@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { updateRoom, addScore } from '../../lib/room.js'
 import { drawTopic } from './topics.js'
 import Typewriter from '../../components/Typewriter.jsx'
@@ -21,15 +21,19 @@ export default function SoreGaSeikai({ code, playerId, room, players, isHost }) 
   const allAnswered = round ? answeredCount >= players.length : false
   const timeUp = Boolean(round?.deadlineAt) && now >= round.deadlineAt
 
+  // 全員回答済みか時間切れになったら、発表フェーズ(まずホストが発表順を決める)へ進める
   useEffect(() => {
     if (!isHost || !round || round.phase !== 'answering') return
     if ((allAnswered || timeUp) && !revealedRef.current) {
       revealedRef.current = true
-      updateRoom(code, { 'round.phase': 'reveal' })
+      updateRoom(code, { 'round.phase': 'ordering', 'round.order': [] })
     }
   }, [isHost, round?.phase, allAnswered, timeUp, code])
 
   const myAnswer = round?.answers?.[playerId] ?? ''
+  const order = round?.order ?? []
+  const revealedCount = round?.revealedCount ?? 0
+  const allPresented = revealedCount >= order.length
 
   async function startRound() {
     const topic = drawTopic()
@@ -41,6 +45,9 @@ export default function SoreGaSeikai({ code, playerId, room, players, isHost }) 
         phase: 'answering',
         deadlineAt: timerSeconds > 0 ? Date.now() + timerSeconds * 1000 : null,
         answers: {},
+        order: [],
+        revealedCount: 0,
+        currentRevealed: false,
         winnerId: null,
       },
     })
@@ -51,17 +58,36 @@ export default function SoreGaSeikai({ code, playerId, room, players, isHost }) 
     await updateRoom(code, { [`round.answers.${playerId}`]: answerText.trim() })
   }
 
+  async function addToOrder(pid) {
+    const newOrder = [...order, pid]
+    const patch = { 'round.order': newOrder }
+    if (newOrder.length >= players.length) {
+      patch['round.phase'] = 'presenting'
+      patch['round.revealedCount'] = 0
+      patch['round.currentRevealed'] = false
+    }
+    await updateRoom(code, patch)
+  }
+
+  async function resetOrder() {
+    await updateRoom(code, { 'round.order': [] })
+  }
+
+  async function revealCurrent() {
+    await updateRoom(code, { 'round.currentRevealed': true })
+  }
+
+  async function nextPresenter() {
+    await updateRoom(code, { 'round.revealedCount': revealedCount + 1, 'round.currentRevealed': false })
+  }
+
   async function pickWinner(winnerId) {
     await updateRoom(code, { 'round.phase': 'judged', 'round.winnerId': winnerId })
     await addScore(code, winnerId, 1)
   }
 
-  const answerList = useMemo(() => {
-    if (!round) return []
-    return players.map((p) => ({ player: p, text: round.answers?.[p.id] ?? null }))
-  }, [round, players])
-
   const remainingSeconds = round?.deadlineAt ? Math.max(0, Math.ceil((round.deadlineAt - now) / 1000)) : null
+  const presentationOrder = order.length ? order : players.map((p) => p.id)
 
   if (!round) {
     return (
@@ -108,24 +134,102 @@ export default function SoreGaSeikai({ code, playerId, room, players, isHost }) 
         </>
       )}
 
-      {(round.phase === 'reveal' || round.phase === 'judged') && (
+      {round.phase === 'ordering' && (
         <>
           <p className="subtitle">
-            {round.phase === 'reveal'
-              ? isHost ? '話し合って、正解だと思う回答をタップしてください' : 'ホストが選ぶのを待っています…'
-              : '正解が選ばれました！'}
+            {isHost ? '発表する順番を選んでください(タップした順に発表されます)' : 'ホストが発表順を決めています…'}
           </p>
-          {answerList.map(({ player, text }) => (
-            <div
-              key={player.id}
-              className={`answer-row${round.winnerId === player.id ? ' winner' : ''}`}
-              onClick={() => isHost && round.phase === 'reveal' && text && pickWinner(player.id)}
-              style={{ cursor: isHost && round.phase === 'reveal' ? 'pointer' : 'default' }}
-            >
-              <strong>{player.name}</strong>: {text ?? '(未回答)'}
-              {round.winnerId === player.id && ' 🏆'}
-            </div>
-          ))}
+          {isHost && (
+            <>
+              {order.length > 0 && (
+                <ol style={{ paddingLeft: 20, marginBottom: 12, color: 'var(--text-hi)' }}>
+                  {order.map((pid) => (
+                    <li key={pid}>{players.find((p) => p.id === pid)?.name ?? '?'}</li>
+                  ))}
+                </ol>
+              )}
+              <div className="game-list">
+                {players.filter((p) => !order.includes(p.id)).map((p) => (
+                  <button key={p.id} className="game-item" onClick={() => addToOrder(p.id)}>
+                    <div className="game-item-name">{p.name}</div>
+                  </button>
+                ))}
+              </div>
+              {order.length > 0 && (
+                <button className="btn btn-ghost" style={{ marginTop: 12, width: '100%' }} onClick={resetOrder}>
+                  やり直す
+                </button>
+              )}
+            </>
+          )}
+        </>
+      )}
+
+      {round.phase === 'presenting' && !allPresented && (() => {
+        const presenterId = order[revealedCount]
+        const presenter = players.find((p) => p.id === presenterId)
+        const isMyTurn = playerId === presenterId
+        return (
+          <>
+            <p className="subtitle">{presenter?.name ?? '?'} さんの発表({revealedCount + 1} / {order.length}人目)</p>
+            {order.slice(0, revealedCount).map((pid) => {
+              const p = players.find((pp) => pp.id === pid)
+              return (
+                <div key={pid} className="answer-row">
+                  <strong>{p?.name}</strong>: {round.answers?.[pid] ?? '(未回答)'}
+                </div>
+              )
+            })}
+            {round.currentRevealed ? (
+              <div className="answer-row" style={{ borderColor: 'var(--amber-400)' }}>
+                <strong>{presenter?.name}</strong>: {round.answers?.[presenterId] ?? '(未回答)'}
+              </div>
+            ) : (
+              <div className="answer-row" style={{ color: 'var(--text-lo)' }}>？？？ まだ発表されていません</div>
+            )}
+            {isMyTurn && (
+              round.currentRevealed ? (
+                <button className="btn btn-amber" style={{ marginTop: 12, width: '100%' }} onClick={nextPresenter}>
+                  次へ
+                </button>
+              ) : (
+                <button className="btn btn-amber" style={{ marginTop: 12, width: '100%' }} onClick={revealCurrent}>
+                  発表する
+                </button>
+              )
+            )}
+            {!isMyTurn && (
+              <p style={{ color: 'var(--text-mid)', marginTop: 12 }}>
+                {round.currentRevealed ? `${presenter?.name}さんが次へ進むのを待っています…` : `${presenter?.name}さんの発表を待っています…`}
+              </p>
+            )}
+          </>
+        )
+      })()}
+
+      {((round.phase === 'presenting' && allPresented) || round.phase === 'judged') && (
+        <>
+          <p className="subtitle">
+            {round.phase === 'judged'
+              ? '正解が選ばれました!'
+              : isHost ? '話し合って、正解だと思う回答をタップしてください' : 'ホストが選ぶのを待っています…'}
+          </p>
+          {presentationOrder.map((pid) => {
+            const player = players.find((p) => p.id === pid)
+            if (!player) return null
+            const text = round.answers?.[pid] ?? null
+            return (
+              <div
+                key={pid}
+                className={`answer-row${round.winnerId === pid ? ' winner' : ''}`}
+                onClick={() => isHost && round.phase === 'presenting' && text && pickWinner(pid)}
+                style={{ cursor: isHost && round.phase === 'presenting' ? 'pointer' : 'default' }}
+              >
+                <strong>{player.name}</strong>: {text ?? '(未回答)'}
+                {round.winnerId === pid && ' 🏆'}
+              </div>
+            )
+          })}
           {isHost && round.phase === 'judged' && (
             <button className="btn btn-amber" style={{ marginTop: 12 }} onClick={startRound}>次のお題へ</button>
           )}
