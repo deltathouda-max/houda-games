@@ -15,8 +15,18 @@ export default function WikipediaGolf({ code, playerId, room, players, isHost })
   const [loading, setLoading] = useState(false)
   const [loadError, setLoadError] = useState('')
   const [clicks, setClicks] = useState(0)
+  const [isDrawing, setIsDrawing] = useState(false)
   const clicksRef = useRef(0)
   const scoredRef = useRef(false)
+  const drawTimerRef = useRef(null)
+  const articleRef = useRef(null)
+
+  useEffect(() => () => { if (drawTimerRef.current) clearInterval(drawTimerRef.current) }, [])
+
+  // 新しい記事に切り替わるたびに、前の記事のスクロール位置を引き継がないよう先頭へ戻す
+  useEffect(() => {
+    if (articleRef.current) articleRef.current.scrollTop = 0
+  }, [article])
 
   const myState = round?.players?.[playerId]
   const finished = Boolean(myState?.finished)
@@ -70,9 +80,19 @@ export default function WikipediaGolf({ code, playerId, room, players, isHost })
   }
 
   function useRandomPair() {
-    const pair = drawPair()
-    setStartInput(pair.start)
-    setGoalInput(pair.goal)
+    if (isDrawing) return
+    setIsDrawing(true)
+    let ticks = 0
+    drawTimerRef.current = setInterval(() => {
+      const p = drawPair()
+      setStartInput(p.start)
+      setGoalInput(p.goal)
+      ticks += 1
+      if (ticks >= 12) {
+        clearInterval(drawTimerRef.current)
+        setIsDrawing(false)
+      }
+    }, 70)
   }
 
   async function backToSetup() {
@@ -125,15 +145,15 @@ export default function WikipediaGolf({ code, playerId, room, players, isHost })
         <p className="subtitle">スタートの記事からリンクを辿って、ゴールの記事に一番早くたどり着いた人の勝ち。</p>
         {isHost ? (
           <>
-            <input className="input" style={{ marginBottom: 8 }} value={startInput}
-              onChange={(e) => setStartInput(e.target.value)} placeholder="スタートの記事名(例: 猫)" />
-            <input className="input" style={{ marginBottom: 8 }} value={goalInput}
-              onChange={(e) => setGoalInput(e.target.value)} placeholder="ゴールの記事名(例: 宇宙)" />
-            <button className="btn btn-ghost" style={{ marginBottom: 12, width: '100%' }} onClick={useRandomPair} disabled={busy}>
-              ランダムお題
+            <input className={`input${isDrawing ? ' slot-spin' : ''}`} style={{ marginBottom: 8 }} value={startInput}
+              onChange={(e) => setStartInput(e.target.value)} placeholder="スタートの記事名(例: 猫)" readOnly={isDrawing} />
+            <input className={`input${isDrawing ? ' slot-spin' : ''}`} style={{ marginBottom: 8 }} value={goalInput}
+              onChange={(e) => setGoalInput(e.target.value)} placeholder="ゴールの記事名(例: 宇宙)" readOnly={isDrawing} />
+            <button className="btn btn-ghost" style={{ marginBottom: 12, width: '100%' }} onClick={useRandomPair} disabled={busy || isDrawing}>
+              {isDrawing ? '抽選中…' : 'ランダムお題'}
             </button>
             {setupError && <p style={{ color: 'var(--danger)', fontSize: 13 }}>{setupError}</p>}
-            <button className="btn btn-amber" style={{ width: '100%' }} onClick={startRound} disabled={busy}>
+            <button className="btn btn-amber" style={{ width: '100%' }} onClick={startRound} disabled={busy || isDrawing}>
               {busy ? '準備中…' : 'スタート'}
             </button>
           </>
@@ -178,7 +198,7 @@ export default function WikipediaGolf({ code, playerId, room, players, isHost })
           {loading && <p style={{ color: 'var(--text-mid)' }}>読み込み中…</p>}
           {loadError && <p style={{ color: 'var(--danger)', fontSize: 13 }}>{loadError}</p>}
           {article && (
-            <div className="wiki-article" onClick={handleArticleClick}
+            <div ref={articleRef} className="wiki-article" onClick={handleArticleClick}
               dangerouslySetInnerHTML={{ __html: article.html }} />
           )}
           {isHost && (
