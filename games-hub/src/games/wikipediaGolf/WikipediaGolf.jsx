@@ -20,6 +20,7 @@ export default function WikipediaGolf({ code, playerId, room, players, isHost })
   const scoredRef = useRef(false)
   const drawTimerRef = useRef(null)
   const articleRef = useRef(null)
+  const lastConfirmedPairRef = useRef(null)
 
   useEffect(() => () => { if (drawTimerRef.current) clearInterval(drawTimerRef.current) }, [])
 
@@ -84,10 +85,17 @@ export default function WikipediaGolf({ code, playerId, room, players, isHost })
     setIsDrawing(true)
     let ticks = 0
     drawTimerRef.current = setInterval(() => {
-      const p = drawPair()
+      ticks += 1
+      let p = drawPair()
+      if (ticks >= 12) {
+        // 前回の抽選結果と同じ組み合わせで確定しないようにする
+        while (p.start === lastConfirmedPairRef.current?.start && p.goal === lastConfirmedPairRef.current?.goal) {
+          p = drawPair()
+        }
+        lastConfirmedPairRef.current = p
+      }
       setStartInput(p.start)
       setGoalInput(p.goal)
-      ticks += 1
       if (ticks >= 12) {
         clearInterval(drawTimerRef.current)
         setIsDrawing(false)

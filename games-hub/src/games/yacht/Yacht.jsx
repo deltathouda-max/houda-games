@@ -115,8 +115,8 @@ export default function Yacht({ code, playerId, room, players, isHost }) {
                   onClick={() => toggleHold(i)}
                   className={showRolling || (!state.held[i] && state.rollsUsed > 0) ? 'dice-rolling' : ''}
                   style={{
-                    width: 44, height: 44, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: 20, fontWeight: 800, cursor: canHold ? 'pointer' : 'default',
+                    width: 60, height: 60, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: 28, fontWeight: 800, cursor: canHold ? 'pointer' : 'default',
                     background: state.held[i] ? 'rgba(245,166,35,0.15)' : 'var(--dq-window)',
                     border: state.held[i] ? '2px solid var(--amber-500)' : '1px solid var(--dq-border-dim)',
                     color: state.rollsUsed === 0 && !showRolling ? 'var(--text-lo)' : 'var(--text-hi)',
