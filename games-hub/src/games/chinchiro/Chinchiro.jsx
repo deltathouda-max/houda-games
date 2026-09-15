@@ -1,9 +1,14 @@
-import { useEffect } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { updateRoom, addScore } from '../../lib/room.js'
 import { rollDice, classify } from './chinchiroLogic.js'
 
 export default function Chinchiro({ code, playerId, room, players, isHost }) {
   const state = room.chinchiro
+  const [isRolling, setIsRolling] = useState(false)
+  const [rollingDisplay, setRollingDisplay] = useState(null)
+  const rollTimerRef = useRef(null)
+
+  useEffect(() => () => { if (rollTimerRef.current) clearInterval(rollTimerRef.current) }, [])
 
   useEffect(() => {
     if (isHost && !state && players.length >= 2) {
@@ -31,7 +36,19 @@ export default function Chinchiro({ code, playerId, room, players, isHost }) {
   const isMyTurn = state.phase === 'rolling' && activeId === playerId
 
   async function handleRoll() {
-    if (!isMyTurn) return
+    if (!isMyTurn || isRolling) return
+    setIsRolling(true)
+    let ticks = 0
+    rollTimerRef.current = setInterval(() => {
+      setRollingDisplay([1, 2, 3].map(() => Math.floor(Math.random() * 6) + 1))
+      ticks += 1
+      if (ticks >= 7) clearInterval(rollTimerRef.current)
+    }, 90)
+    await new Promise((resolve) => setTimeout(resolve, 650))
+    clearInterval(rollTimerRef.current)
+    setRollingDisplay(null)
+    setIsRolling(false)
+
     const dice = rollDice(3)
     const result = classify(dice)
     if (result.label === '目なし' && state.rollsUsed + 1 < 3) {
@@ -93,13 +110,13 @@ export default function Chinchiro({ code, playerId, room, players, isHost }) {
                   fontSize: 22, fontWeight: 800, background: 'var(--dq-window)', border: '1px solid var(--dq-border-dim)',
                 }}
               >
-                {d}
+                {isRolling && rollingDisplay ? rollingDisplay[i] : d}
               </div>
             ))}
           </div>
           {isMyTurn && (
-            <button className="btn btn-amber" style={{ width: '100%' }} onClick={handleRoll}>
-              サイコロを振る({state.rollsUsed + 1}投目)
+            <button className="btn btn-amber" style={{ width: '100%' }} disabled={isRolling} onClick={handleRoll}>
+              {isRolling ? '振っています…' : `サイコロを振る(${state.rollsUsed + 1}投目)`}
             </button>
           )}
         </>

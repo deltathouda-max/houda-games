@@ -87,7 +87,17 @@ export default function ConnectFour({ code, playerId, room, players, isHost }) {
         renderCell={(r, c) => {
           const owner = state.board[r * COLS + c]
           if (!owner) return null
-          return <div className="board-piece" style={{ width: '80%', height: '80%', borderRadius: '50%', background: DISC[owner], border: '1px solid var(--dq-border-dim)' }} />
+          const fallFrom = -(r + 1) * 40
+          return (
+            <div
+              className="connect-piece"
+              style={{
+                '--fall-from': `${fallFrom}px`,
+                width: '80%', height: '80%', borderRadius: '50%',
+                background: DISC[owner], border: '1px solid var(--dq-border-dim)',
+              }}
+            />
+          )
         }}
       />
     </div>

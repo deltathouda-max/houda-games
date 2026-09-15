@@ -1,13 +1,14 @@
 .wiki-article {
-  max-height: 48vh;
+  max-height: 68vh;
   overflow-y: auto;
   background: #0b0b16;
   border: 2px solid var(--dq-border-dim);
   border-radius: 2px;
-  padding: 14px;
+  padding: 16px;
   margin-top: 4px;
-  font-size: 14px;
-  line-height: 1.7;
+  font-family: "Hiragino Sans", "Yu Gothic", "Noto Sans JP", "Segoe UI", sans-serif;
+  font-size: 15px;
+  line-height: 1.8;
   color: var(--text-hi);
 }
 

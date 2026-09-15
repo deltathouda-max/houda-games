@@ -107,6 +107,7 @@ export const GAMES = [
     maxPlayers: 12,
     component: WikipediaGolf,
     available: true,
+    wideLayout: true,
     rules: 'スタートの記事が表示されるので、記事内のリンクをクリックして次の記事へ移動していきます。\nリンクを辿って、指定されたゴールの記事に一番早くたどり着いた人の勝ちです。\nクリック数はリーダーボードで他の人にも見えています。',
   },
 ]

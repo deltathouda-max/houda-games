@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import { updateRoom, addScore } from '../../lib/room.js'
 import TurnBoard from '../boardShared/TurnBoard.jsx'
 import useTwoPlayerTurns from '../boardShared/useTwoPlayerTurns.js'
@@ -9,12 +9,18 @@ const DISC = { black: '#1A1E2E', white: '#F4F6FB' }
 export default function Othello({ code, playerId, room, players, isHost }) {
   const state = room.othello
   const { first, second, myRole } = useTwoPlayerTurns(players, playerId)
+  const prevBoardRef = useRef(null)
 
   useEffect(() => {
     if (isHost && !state && players.length >= 2) {
       updateRoom(code, { othello: { board: createInitialBoard(), turn: 'black', winner: null } })
     }
   }, [isHost, state, players.length, code])
+
+  // 直前の盤面と見比べて「色が変わったマス」だけひっくり返る演出にする
+  useEffect(() => {
+    if (state?.board) prevBoardRef.current = state.board
+  })
 
   const board = state?.board
   const turn = state?.turn
@@ -77,8 +83,19 @@ export default function Othello({ code, playerId, room, players, isHost }) {
         renderCell={(r, c) => {
           const idx = r * SIZE + c
           const v = board[idx]
+          const prevV = prevBoardRef.current?.[idx] ?? null
           if (v) {
-            return <div key={v} className="board-piece" style={{ width: '78%', height: '78%', borderRadius: '50%', background: DISC[v], border: '1px solid var(--dq-border-dim)' }} />
+            if (prevV && prevV !== v) {
+              return (
+                <div className="disc-flip" style={{ width: '78%', height: '78%' }}>
+                  <div className="disc-flip-inner">
+                    <div className="disc-face" style={{ background: DISC[prevV] }} />
+                    <div className="disc-face disc-face-back" style={{ background: DISC[v] }} />
+                  </div>
+                </div>
+              )
+            }
+            return <div className="board-piece" style={{ width: '78%', height: '78%', borderRadius: '50%', background: DISC[v], border: '1px solid var(--dq-border-dim)' }} />
           }
           if (isMyTurn && legalMoves.includes(idx)) {
             return <div className="board-piece" style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--amber-500)', opacity: 0.6 }} />

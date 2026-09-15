@@ -119,7 +119,7 @@ export default function WikipediaGolf({ code, playerId, room, players, isHost })
 
   if (!round) {
     return (
-      <div className="card">
+      <div className="card" style={{ maxWidth: 760 }}>
         <div className="eyebrow">Wikipediaゴルフ</div>
         <div className="title">スタートとゴールの記事を決める</div>
         <p className="subtitle">スタートの記事からリンクを辿って、ゴールの記事に一番早くたどり着いた人の勝ち。</p>
@@ -155,7 +155,7 @@ export default function WikipediaGolf({ code, playerId, room, players, isHost })
     })
 
   return (
-    <div className="card" style={{ maxWidth: 640 }}>
+    <div className="card" style={{ maxWidth: 760 }}>
       <div className="eyebrow">Wikipediaゴルフ ・ 第{round.index + 1}回</div>
       <div className="title">ゴール: {round.goalTitle}</div>
       <p className="subtitle">

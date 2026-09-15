@@ -1,10 +1,9 @@
 import { updateSettings } from '../../lib/room.js'
 
 const TIMER_OPTIONS = [
-  { value: 0, label: 'なし' },
-  { value: 30, label: '30秒' },
   { value: 60, label: '60秒' },
   { value: 90, label: '90秒' },
+  { value: 120, label: '120秒' },
 ]
 
 export default function SoreGaSeikaiLobbySettings({ code, room }) {
