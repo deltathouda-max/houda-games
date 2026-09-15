@@ -51,7 +51,9 @@ export default function Room({ code, playerId, onLeave }) {
   const isHost = room.hostId === playerId
   const me = players.find((p) => p.id === playerId)
   const game = getGame(room.gameId)
-  const canStart = players.length >= (game?.minPlayers ?? 1)
+  // 本来の必要人数に満たなくても、動作確認をしやすいようホストは常に開始できる
+  const canStart = players.length >= 1
+  const belowMinPlayers = players.length < (game?.minPlayers ?? 1)
 
   async function handleLeave() {
     await leaveRoom({ code, playerId })
@@ -97,8 +99,13 @@ export default function Room({ code, playerId, onLeave }) {
                 disabled={!canStart}
                 onClick={() => startGame(code)}
               >
-                {canStart ? 'ゲーム開始' : `あと${(game?.minPlayers ?? 1) - players.length}人必要です`}
+                ゲーム開始
               </button>
+              {belowMinPlayers && (
+                <p className="subtitle" style={{ marginTop: 8, textAlign: 'center' }}>
+                  本来は{game?.minPlayers ?? 1}人以上のゲームです(動作確認用に人数が足りなくても開始できます)
+                </p>
+              )}
             </>
           )}
           {!isHost && <p className="subtitle" style={{ marginTop: 16 }}>ホストが開始するのを待っています…</p>}

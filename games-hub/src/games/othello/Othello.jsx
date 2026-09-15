@@ -12,7 +12,7 @@ export default function Othello({ code, playerId, room, players, isHost }) {
   const prevBoardRef = useRef(null)
 
   useEffect(() => {
-    if (isHost && !state && players.length >= 2) {
+    if (isHost && !state && players.length >= 1) {
       updateRoom(code, { othello: { board: createInitialBoard(), turn: 'black', winner: null } })
     }
   }, [isHost, state, players.length, code])
@@ -34,7 +34,7 @@ export default function Othello({ code, playerId, room, players, isHost }) {
       <div className="card">
         <div className="eyebrow">オセロ</div>
         <div className="title">準備中…</div>
-        <p className="subtitle">2人揃うと自動で始まります。</p>
+        <p className="subtitle">準備を始めています…</p>
       </div>
     )
   }

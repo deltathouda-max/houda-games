@@ -15,7 +15,7 @@ export default function KyuMasuShogi({ code, playerId, room, players, isHost }) 
   const [selected, setSelected] = useState(null) // null | {type:'board', r, c} | {type:'hand', kind}
 
   useEffect(() => {
-    if (isHost && !state && players.length >= 2) {
+    if (isHost && !state && players.length >= 1) {
       updateRoom(code, { kyuShogi: createInitialState(room.settings?.shogiPreset) })
     }
   }, [isHost, state, players.length, code, room.settings?.shogiPreset])
@@ -27,7 +27,7 @@ export default function KyuMasuShogi({ code, playerId, room, players, isHost }) 
       <div className="card">
         <div className="eyebrow">9マス将棋</div>
         <div className="title">準備中…</div>
-        <p className="subtitle">2人揃うと自動で始まります。</p>
+        <p className="subtitle">準備を始めています…</p>
       </div>
     )
   }

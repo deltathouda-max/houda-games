@@ -11,7 +11,7 @@ export default function Chinchiro({ code, playerId, room, players, isHost }) {
   useEffect(() => () => { if (rollTimerRef.current) clearInterval(rollTimerRef.current) }, [])
 
   useEffect(() => {
-    if (isHost && !state && players.length >= 2) {
+    if (isHost && !state && players.length >= 1) {
       const order = players.map((p) => p.id)
       const hands = {}
       order.forEach((pid) => { hands[pid] = null })
@@ -26,7 +26,7 @@ export default function Chinchiro({ code, playerId, room, players, isHost }) {
       <div className="card">
         <div className="eyebrow">チンチロ</div>
         <div className="title">準備中…</div>
-        <p className="subtitle">2人揃うと自動で始まります。</p>
+        <p className="subtitle">準備を始めています…</p>
       </div>
     )
   }

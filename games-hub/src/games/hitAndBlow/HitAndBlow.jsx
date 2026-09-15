@@ -10,7 +10,7 @@ export default function HitAndBlow({ code: roomCode, playerId, room, players, is
   const [guessInput, setGuessInput] = useState('')
 
   useEffect(() => {
-    if (isHost && !state && players.length >= 2) {
+    if (isHost && !state && players.length >= 1) {
       updateRoom(roomCode, { hitBlow: { phase: 'setup', codes: {}, turn: null, guesses: {}, winner: null } })
     }
   }, [isHost, state, players.length, roomCode])
@@ -22,7 +22,7 @@ export default function HitAndBlow({ code: roomCode, playerId, room, players, is
       <div className="card">
         <div className="eyebrow">Hit and Blow</div>
         <div className="title">準備中…</div>
-        <p className="subtitle">2人揃うと自動で始まります。</p>
+        <p className="subtitle">準備を始めています…</p>
       </div>
     )
   }
