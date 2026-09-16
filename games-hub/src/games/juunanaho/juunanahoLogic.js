@@ -1,11 +1,26 @@
 // カイジの「17歩」を簡略実装したもの。
-// 本来は「満貫縛りのテンパイ」だが、役の判定エンジンまでは実装せず、
-// 4面子1雀頭が揃う標準形の完成判定のみを「あがり」の条件として扱う簡易版。
+// 通常の麻雀と同じく、各牌種は4枚ずつ存在する(136枚)。対局開始時にシャッフルした
+// 山から両者にそれぞれ34枚を配り、自分の34枚の中から13枚を選んでテンパイ(あと1枚で
+// 満貫以上になる形)を作る。残り21枚が自分の捨て牌候補になる。
 const SUITS = ['m', 'p', 's']
 export const ALL_TILES = [
   ...SUITS.flatMap((s) => Array.from({ length: 9 }, (_, i) => `${i + 1}${s}`)),
   ...Array.from({ length: 7 }, (_, i) => `${i + 1}z`),
 ]
+
+// 各牌種4枚ずつの136枚デッキ
+export function standardDeck() {
+  return ALL_TILES.flatMap((t) => [t, t, t, t])
+}
+
+export function shuffle(arr) {
+  const a = [...arr]
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[a[i], a[j]] = [a[j], a[i]]
+  }
+  return a
+}
 
 const HONOR_LABEL = { 1: '東', 2: '南', 3: '西', 4: '北', 5: '白', 6: '發', 7: '中' }
 
