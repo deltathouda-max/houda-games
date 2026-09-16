@@ -6,6 +6,7 @@ import { vibrateSuccess } from '../lib/haptics.js'
 import Typewriter from '../components/Typewriter.jsx'
 import InviteBlock from '../components/InviteBlock.jsx'
 import { ReactionBar, ReactionOverlay } from '../components/Reactions.jsx'
+import { CommentInput, CommentOverlay } from '../components/Comments.jsx'
 import RulesModal from '../components/RulesModal.jsx'
 import LoadingFlavor from '../components/LoadingFlavor.jsx'
 
@@ -63,6 +64,7 @@ export default function Room({ code, playerId, onLeave }) {
   return (
     <div style={{ width: '100%', maxWidth: game?.wideLayout ? 760 : 480, display: 'flex', flexDirection: 'column', gap: 16 }}>
       <ReactionOverlay code={code} />
+      <CommentOverlay code={code} />
       <div className="card" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
           <div className="eyebrow"><Typewriter text={game?.name ?? room.gameId} /></div>
@@ -75,6 +77,7 @@ export default function Room({ code, playerId, onLeave }) {
       </div>
 
       <ReactionBar code={code} playerId={playerId} />
+      <CommentInput code={code} playerId={playerId} playerName={me?.name} />
 
       {room.status === 'lobby' && (
         <div className="card">
