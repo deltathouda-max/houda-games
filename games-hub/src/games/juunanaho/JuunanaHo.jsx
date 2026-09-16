@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { updateRoom, guardedUpdate, addScore } from '../../lib/room.js'
 import useTwoPlayerTurns from '../boardShared/useTwoPlayerTurns.js'
-import { ALL_TILES, isTenpai, sortTiles, tileLabel, tileSuitClass, ANTE_17HO, MAX_TURNS } from './juunanahoLogic.js'
+import { standardDeck, shuffle, sortTiles, tileLabel, tileSuitClass, ANTE_17HO, MAX_TURNS } from './juunanahoLogic.js'
 import { evaluateWin, tenpaiHasManganWait, nextDoraTile, randomDoraIndicator } from './mahjongScore.js'
 
 const CHIPS_17HO = 1000
@@ -10,6 +10,10 @@ function startHand(dealerId, otherId, chips) {
   const ante = { [dealerId]: Math.min(ANTE_17HO, chips[dealerId]), [otherId]: Math.min(ANTE_17HO, chips[otherId]) }
   const nextChips = { [dealerId]: chips[dealerId] - ante[dealerId], [otherId]: chips[otherId] - ante[otherId] }
   const doraIndicator = randomDoraIndicator()
+  // 136枚の山をシャッフルし、両者にそれぞれ34枚配る(通常の麻雀と同じく各牌種4枚まで存在するため重複あり)
+  const deck = shuffle(standardDeck())
+  const wallA = sortTiles(deck.slice(0, 34))
+  const wallB = sortTiles(deck.slice(34, 68))
   return {
     dealerId,
     chips: nextChips,
@@ -17,6 +21,7 @@ function startHand(dealerId, otherId, chips) {
     phase: 'selecting',
     doraIndicator,
     doraTile: nextDoraTile(doraIndicator),
+    wall: { [dealerId]: wallA, [otherId]: wallB },
     hand: { [dealerId]: null, [otherId]: null },
     discardPool: { [dealerId]: null, [otherId]: null },
     discarded: { [dealerId]: [], [otherId]: [] },
@@ -33,17 +38,10 @@ function otherIdOf(state) {
   return Object.keys(state.chips).find((id) => id !== state.dealerId)
 }
 
-const TILE_ROWS = [
-  ALL_TILES.filter((t) => t.endsWith('m')),
-  ALL_TILES.filter((t) => t.endsWith('p')),
-  ALL_TILES.filter((t) => t.endsWith('s')),
-  ALL_TILES.filter((t) => t.endsWith('z')),
-]
-
 export default function JuunanaHo({ code, playerId, room, players, isHost }) {
   const state = room.juunanaho
   const { first, second, myRole } = useTwoPlayerTurns(players, playerId)
-  const [selected, setSelected] = useState([])
+  const [selectedIdx, setSelectedIdx] = useState([])
   const [busy, setBusy] = useState(false)
 
   useEffect(() => {
@@ -63,16 +61,17 @@ export default function JuunanaHo({ code, playerId, room, players, isHost }) {
     })
   }, [isHost, state, code])
 
-  useEffect(() => { setSelected([]) }, [state?.handIndex])
+  useEffect(() => { setSelectedIdx([]) }, [state?.handIndex])
+
+  const myWall = state?.wall?.[playerId]
+  const selectedTiles = useMemo(() => (myWall ? selectedIdx.map((i) => myWall[i]) : []), [myWall, selectedIdx])
 
   const tenpaiInfo = useMemo(() => {
-    if (selected.length !== 13) return { tenpai: false, manganOk: false, waits: [] }
-    const sorted = sortTiles(selected)
-    const { tenpai, waits } = isTenpai(sorted)
-    if (!tenpai) return { tenpai: false, manganOk: false, waits: [] }
-    const { ok, manganWaits } = tenpaiHasManganWait(sorted, state?.doraTile)
-    return { tenpai: true, manganOk: ok, waits, manganWaits }
-  }, [selected, state?.doraTile])
+    if (selectedTiles.length !== 13) return { tenpai: false, manganOk: false, waits: [], manganWaits: [] }
+    const sorted = sortTiles(selectedTiles)
+    const { ok, waits, manganWaits } = tenpaiHasManganWait(sorted, state?.doraTile)
+    return { tenpai: waits.length > 0, manganOk: ok, waits, manganWaits: manganWaits ?? [] }
+  }, [selectedTiles, state?.doraTile])
 
   if (!first || !second) {
     return (
@@ -121,20 +120,21 @@ export default function JuunanaHo({ code, playerId, room, players, isHost }) {
   const myChips = state.chips[playerId]
   const oppChips = state.chips[opponentId]
 
-  function toggleTile(t) {
-    setSelected((prev) => {
-      if (prev.includes(t)) return prev.filter((x) => x !== t)
+  function toggleSlot(idx) {
+    setSelectedIdx((prev) => {
+      if (prev.includes(idx)) return prev.filter((x) => x !== idx)
       if (prev.length >= 13) return prev
-      return [...prev, t]
+      return [...prev, idx]
     })
   }
 
   async function confirmHand() {
-    if (busy || selected.length !== 13 || !tenpaiInfo.manganOk) return
+    if (busy || selectedTiles.length !== 13 || !tenpaiInfo.manganOk) return
     setBusy(true)
     try {
-      const hand = sortTiles(selected)
-      const discardPool = sortTiles(ALL_TILES.filter((t) => !hand.includes(t)))
+      const hand = sortTiles(selectedTiles)
+      const restIdx = myWall.map((_, i) => i).filter((i) => !selectedIdx.includes(i))
+      const discardPool = sortTiles(restIdx.map((i) => myWall[i]))
       await updateRoom(code, {
         [`juunanaho.hand.${playerId}`]: hand,
         [`juunanaho.discardPool.${playerId}`]: discardPool,
@@ -143,12 +143,19 @@ export default function JuunanaHo({ code, playerId, room, players, isHost }) {
     } finally { setBusy(false) }
   }
 
+  // 同じ牌種が複数枚あり得るため、指定した牌を「1枚だけ」取り除く
+  function removeOne(arr, t) {
+    const idx = arr.indexOf(t)
+    if (idx < 0) return arr
+    return [...arr.slice(0, idx), ...arr.slice(idx + 1)]
+  }
+
   async function discardTile(t) {
     if (busy || state.phase !== 'discarding' || state.turnPlayerId !== playerId) return
     setBusy(true)
     try {
       const newDiscarded = [...state.discarded[playerId], t]
-      const newPool = state.discardPool[playerId].filter((x) => x !== t)
+      const newPool = removeOne(state.discardPool[playerId], t)
       await updateRoom(code, {
         [`juunanaho.discarded.${playerId}`]: newDiscarded,
         [`juunanaho.discardPool.${playerId}`]: newPool,
@@ -263,12 +270,12 @@ export default function JuunanaHo({ code, playerId, room, players, isHost }) {
         <div className={`mahjong-tile ${tileSuitClass(state.doraTile)}`} style={{ cursor: 'default', width: 32, height: 44, fontSize: 13, borderColor: 'var(--amber-400)' }}>{tileLabel(state.doraTile)}</div>
       </div>
 
-      {state.phase === 'selecting' && !state.ready[playerId] && (
+      {state.phase === 'selecting' && !state.ready[playerId] && myWall && (
         <>
           <p className="subtitle">
-            34種の牌から13枚を選び、あと1枚であがれば「満貫以上」になるテンパイの形を作ってください
+            配られた34枚の中から13枚を選び、あと1枚であがれば「満貫以上」になるテンパイの形を作ってください
             (役なしではあがれません。ドラは翻数に加算されます)。
-            {' '}選択中: {selected.length}/13{selected.length === 13 && (
+            {' '}選択中: {selectedTiles.length}/13{selectedTiles.length === 13 && (
               !tenpaiInfo.tenpai
                 ? <span style={{ color: 'var(--danger)' }}> ・ まだテンパイではありません</span>
                 : tenpaiInfo.manganOk
@@ -276,20 +283,18 @@ export default function JuunanaHo({ code, playerId, room, players, isHost }) {
                   : <span style={{ color: 'var(--danger)' }}> ・ テンパイですが満貫未満です(役が足りません)</span>
             )}
           </p>
-          {TILE_ROWS.map((row, i) => (
-            <div key={i} style={{ display: 'flex', gap: 4, flexWrap: 'wrap', marginBottom: 6 }}>
-              {row.map((t) => (
-                <button
-                  key={t}
-                  className={`mahjong-tile ${tileSuitClass(t)}${selected.includes(t) ? ' is-selected' : ''}`}
-                  onClick={() => toggleTile(t)}
-                >
-                  {tileLabel(t)}
-                </button>
-              ))}
-            </div>
-          ))}
-          <button className="btn btn-amber" style={{ width: '100%', marginTop: 12 }} disabled={busy || selected.length !== 13 || !tenpaiInfo.manganOk} onClick={confirmHand}>
+          <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', marginBottom: 6 }}>
+            {myWall.map((t, i) => (
+              <button
+                key={i}
+                className={`mahjong-tile ${tileSuitClass(t)}${selectedIdx.includes(i) ? ' is-selected' : ''}`}
+                onClick={() => toggleSlot(i)}
+              >
+                {tileLabel(t)}
+              </button>
+            ))}
+          </div>
+          <button className="btn btn-amber" style={{ width: '100%', marginTop: 12 }} disabled={busy || selectedTiles.length !== 13 || !tenpaiInfo.manganOk} onClick={confirmHand}>
             この手で決定
           </button>
         </>
@@ -311,8 +316,8 @@ export default function JuunanaHo({ code, playerId, room, players, isHost }) {
         <>
           <p className="subtitle">捨て牌候補からロンされないよう1枚選んで切ってください。</p>
           <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
-            {state.discardPool[playerId].map((t) => (
-              <button key={t} className={`mahjong-tile ${tileSuitClass(t)}`} disabled={busy} onClick={() => discardTile(t)}>
+            {state.discardPool[playerId].map((t, i) => (
+              <button key={i} className={`mahjong-tile ${tileSuitClass(t)}`} disabled={busy} onClick={() => discardTile(t)}>
                 {tileLabel(t)}
               </button>
             ))}
@@ -356,12 +361,11 @@ export default function JuunanaHo({ code, playerId, room, players, isHost }) {
       )}
 
       <p className="subtitle" style={{ marginTop: 16 }}>
-        34種の牌から13枚を選んでテンパイ(あと1枚であがれる形)を作り、残り21枚を1枚ずつ切っていきます。
-        相手の捨て牌が自分のあがり牌で、かつ満貫以上(4翻以上)ならロンで勝ちです。
+        シャッフルした牌山から34枚配られるので、その中から13枚を選んでテンパイ(あと1枚であがれる形)を作り、
+        残り21枚を1枚ずつ切っていきます(通常の麻雀と同じく同じ牌は最大4枚まで持てます)。
+        相手の捨て牌が自分のあがり牌で、かつ満貫以上ならロンで勝ちです。
         満貫未満の場合や見逃した場合、そのハンドの間はロンできなくなります(フリテン)。
         17巡で決着しなければ流局(山分け)です。
-        ※実現できる役はタンヤオ・一気通貫・三色同順・チャンタ/ジュンチャンとドラのみに絞った簡易ルールです
-        (このゲームの性質上、刻子や七対子は作れないため)。
       </p>
     </div>
   )
