@@ -9,6 +9,7 @@ const roomRef = (code) => doc(db, 'rooms', code)
 const playerRef = (code, playerId) => doc(db, 'rooms', code, 'players', playerId)
 const playersColRef = (code) => collection(db, 'rooms', code, 'players')
 const reactionsColRef = (code) => collection(db, 'rooms', code, 'reactions')
+const commentsColRef = (code) => collection(db, 'rooms', code, 'comments')
 
 // 部屋を作成し、作成者を最初のプレイヤー(ホスト)として登録する
 export async function createRoom({ gameId, hostName }) {
@@ -149,6 +150,24 @@ export async function sendReaction(code, playerId, emoji) {
 
 export function subscribeReactions(code, cb) {
   return onSnapshot(reactionsColRef(code), (snap) => {
+    snap.docChanges().forEach((change) => {
+      if (change.type === 'added') cb({ id: change.doc.id, ...change.doc.data() })
+    })
+  })
+}
+
+// 画面を横に流れるコメント。リアクションと同様、送信者が表示後(数秒後)に
+// 自分で削除するので部屋に溜まり続けない
+export async function sendComment(code, playerId, playerName, text) {
+  const trimmed = text.trim().slice(0, 30)
+  if (!trimmed) return
+  const ref = doc(commentsColRef(code))
+  await setDoc(ref, { text: trimmed, playerName: (playerName || '').slice(0, 20), playerId, createdAt: serverTimestamp() })
+  setTimeout(() => { deleteDoc(ref).catch(() => {}) }, 9000)
+}
+
+export function subscribeComments(code, cb) {
+  return onSnapshot(commentsColRef(code), (snap) => {
     snap.docChanges().forEach((change) => {
       if (change.type === 'added') cb({ id: change.doc.id, ...change.doc.data() })
     })
