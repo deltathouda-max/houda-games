@@ -16,6 +16,7 @@ const WikipediaGolf = lazy(() => import('./wikipediaGolf/WikipediaGolf.jsx'))
 const ECard = lazy(() => import('./ecard/ECard.jsx'))
 const OnePoker = lazy(() => import('./onePoker/OnePoker.jsx'))
 const JuunanaHo = lazy(() => import('./juunanaho/JuunanaHo.jsx'))
+const Sanrentan = lazy(() => import('./sanrentan/Sanrentan.jsx'))
 
 // 今後オセロ・hit and blow等を追加する際はここに登録するだけでハブ・ロビーから遊べるようにする
 export const GAMES = [
@@ -154,6 +155,17 @@ export const GAMES = [
     component: JuunanaHo,
     available: true,
     rules: 'シャッフルした牌山(通常の麻雀と同じく各牌種4枚ずつ)から34枚が配られます。\nその中から13枚を選び、あと1枚であがれば満貫以上になる「テンパイ」の形を作ります。\n残り21枚が自分の捨て牌候補になり、交互に1枚ずつ切っていきます。\n相手の捨て牌が自分のあがり牌で、満貫以上の役が付くなら「ロン」で勝ち。役が足りない場合や見逃した場合は、そのハンドの間ロンできなくなります(フリテン)。\n17巡で決着しなければ流局です。\nドラ表示牌もあり、ドラは翻数に加算されます。\n毎ハンドでチップを賭け、チップがなくなったら負けです。',
+  },
+  {
+    id: 'sanrentan',
+    name: 'サンレンタン',
+    description: '出題者の価値観ランキング1〜3位を競馬のように予想する(2〜6人)',
+    icon: '🏇',
+    minPlayers: 2,
+    maxPlayers: 6,
+    component: Sanrentan,
+    available: true,
+    rules: '出題者(親)がお題の7つの選択肢から、自分の好きな上位3つを順位つきで決めます(他の人には見えません)。\n他のプレイヤーは、親の1〜3位を予想して順位を決めます。\n全員の予想が揃うと公開され、当たり具合で得点が入ります。\nサンレンタン(順位まで全部ぴったり)6点 / サンレンプク(3つとも当たり、順位は違う)4点 / ニレンタン(1位と2位だけぴったり)3点 / プクプク(2つ当たり)2点 / タン(1つだけ当たり)1点。\n全員が一度ずつ出題者を務めたら終了。合計点が一番高い人の勝ちです。',
   },
 ]
 
