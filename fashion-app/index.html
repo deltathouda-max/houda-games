@@ -1,4 +1,4 @@
-<title>いろはのきせかえ</title>
+<title>ファッション・レシピ</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -74,6 +74,7 @@ main { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap:
 
 .panel { display: grid; gap: 16px; min-width: 0; }
 .card { background: var(--surface); border: 1px solid var(--line); border-radius: 22px; padding: 18px; display: grid; gap: 12px; min-width: 0; }
+.card > * { min-width: 0; }
 .card h2 { font-size: 15px; margin: 0; color: var(--muted); letter-spacing: .08em; }
 label.big { font-weight: 700; font-size: 18px; }
 .ask { display: flex; gap: 10px; flex-wrap: wrap; }
@@ -132,55 +133,92 @@ button:focus-visible { outline: 3px solid var(--teal); outline-offset: 2px; }
 .wear { display: flex; flex-wrap: wrap; gap: 6px; }
 .wear span { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; background: var(--bg); border: 1px solid var(--line); border-radius: 999px; padding: 3px 12px 3px 4px; }
 .wear b { width: 18px; height: 18px; border-radius: 50%; border: 1px solid rgba(0,0,0,.25); display: inline-block; }
+.card h2.steph { font-size: 18px; color: var(--ink); letter-spacing: 0; }
+.step { display: inline-grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: var(--ink); color: var(--surface); font-size: 15px; margin-right: 8px; vertical-align: 1px; }
+.abilities { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.ab { border: 2px solid var(--line); background: var(--bg); border-radius: 18px; padding: 12px 14px; text-align: left; display: grid; gap: 2px; color: var(--ink); }
+.ab b { font-size: 20px; display: flex; align-items: center; gap: 8px; }
+.ab b i { width: 14px; height: 14px; border-radius: 50%; background: var(--a); display: inline-block; }
+.ab small { color: var(--muted); font-size: 13px; line-height: 1.5; }
+.ab[aria-pressed="true"] { border-color: var(--a); background: color-mix(in srgb, var(--a) 14%, var(--surface)); box-shadow: inset 0 0 0 2px var(--a); }
+ruby rt { font-size: .5em; }
+.stage::before { content: ""; position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity .4s;
+  background: radial-gradient(circle at 50% 58%, color-mix(in srgb, var(--a, #fff) 38%, transparent), transparent 62%); }
+.stage.aura::before { opacity: 1; }
+.stage > * { position: relative; }
+.badge { position: absolute; left: 14px; bottom: 14px; background: var(--a); color: #fff; font-weight: 800; font-family: var(--font-display); padding: 6px 16px; border-radius: 999px; font-size: 18px; }
+.show-exit { display: none; }
+.spells { list-style: none; margin: 4px 0 8px; padding: 0; display: none; text-align: center; font-weight: 700; gap: 4px; }
+body.show .panel { display: none; }
+body.show main { grid-template-columns: minmax(0, 1fr); }
+body.show .stage svg { width: auto; height: min(66vh, 640px); max-width: 100%; }
+body.show .spells { display: grid; }
+body.show .badge { font-size: 24px; }
+body.show .stage { padding-top: 60px; }
+body.show .show-exit { z-index: 3; display: block; position: absolute; top: 12px; right: 12px; background: var(--surface); color: var(--ink); border: 2px solid var(--ink); border-radius: 12px; padding: 6px 14px; font-weight: 700; }
+.mg { border-radius: 16px; padding: 12px 14px; border: 2px solid var(--line); display: grid; gap: 8px; }
+.mg.main { border-color: var(--a); background: color-mix(in srgb, var(--a) 10%, var(--surface)); }
+.mg-title { font-weight: 800; font-size: 18px; color: var(--ink); }
+.mg-title i { color: var(--a); font-style: normal; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chips span { font-size: 14px; background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 2px 10px; }
+.others { display: grid; gap: 8px; }
+.orow { display: grid; grid-template-columns: 4.5em minmax(0, 1fr); gap: 8px; align-items: baseline; font-size: 15px; }
+.orow b { color: var(--a); }
+.fine { font-size: 13px; color: var(--muted); margin: 0; }
+details summary { cursor: pointer; font-weight: 700; }
+.rt { overflow-x: auto; margin-top: 8px; }
+.rt table { border-collapse: collapse; width: 100%; font-size: 14px; min-width: 460px; }
+.rt th, .rt td { border-bottom: 1px solid var(--line); padding: 6px 8px; text-align: left; vertical-align: top; }
+.rt th { color: var(--a); white-space: nowrap; }
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
 </style>
 
 <div class="wrap">
   <header>
-    <h1>いろはの きせかえ<span class="dot">.</span></h1>
-    <p>ふくの いろや とくちょうを ことばで つたえよう</p>
+    <h1>ファッション・レシピ<span class="dot">.</span></h1>
+    <p>心のスイッチを入れる「じゅもん」で、ノアを着がえさせよう</p>
   </header>
   <main>
-    <section class="stage" aria-label="いろはちゃん">
+    <section class="stage" id="stage" aria-label="ノア">
+      <button type="button" class="show-exit" id="showExit">もどる</button>
       <div class="bubble" id="bubble" aria-live="polite"></div>
-      <svg id="girl" viewBox="0 0 300 505" role="img" aria-label="きせかえ中の いろはちゃん"></svg>
+      <svg id="girl" viewBox="0 0 300 505" role="img" aria-label="着がえ中の ノア"></svg>
+      <ol class="spells" id="spells"></ol>
+      <div class="badge" id="badge" hidden></div>
     </section>
     <div class="panel">
+      <section class="card" aria-labelledby="h-step1">
+        <h2 class="steph" id="h-step1"><span class="step">1</span>上げたい力を えらぶ</h2>
+        <div class="abilities" id="abilities"></div>
+      </section>
       <form class="card" id="form" autocomplete="off">
-        <label class="big" for="say">どんな ふくを きせる？</label>
+        <label class="big" for="say"><span class="step">2</span>レシピの じゅもんを 入れる</label>
         <div class="ask">
-          <input id="say" type="text" placeholder="れい: みずいろの みずたまの ワンピース" enterkeyhint="done">
-          <button class="go" type="submit">きせる</button>
+          <input id="say" type="text" placeholder="れい: 赤い ジャケットと スニーカー" enterkeyhint="done">
+          <button class="go" type="submit">かける</button>
         </div>
-        <div class="examples" id="examples" aria-label="れい"></div>
+        <div class="examples" id="examples" aria-label="じゅもんの れい"></div>
         <div class="tools">
           <button type="button" id="undo">ひとつ もどす</button>
           <button type="button" id="reset">はじめから</button>
+          <button type="button" id="show">ショーで 見せる</button>
         </div>
       </form>
+      <section class="card" aria-labelledby="h-magic">
+        <h2 id="h-magic">まほうの こうか</h2>
+        <div id="magic"></div>
+        <p class="fine">※ 色や服から受ける感じ方は、人によってちがいます。あなたが「こうなりたい」と思って選んだことが、いちばんの まほうです。</p>
+        <details><summary>まほうの レシピ(こうか表)を 見る</summary><div class="rt" id="recipe"></div></details>
+      </section>
       <section class="card" aria-labelledby="h-found">
-        <h2 id="h-found">みつけた ことば</h2>
+        <h2 id="h-found">じゅもんで 見つかった ことば</h2>
         <div class="found" id="found"></div>
         <div class="legend">
-          <span><i style="background:#f0a3c0"></i>いろ</span>
-          <span><i style="background:var(--accent)"></i>ふくの なまえ</span>
-          <span><i style="background:var(--teal)"></i>もよう・ながさ など</span>
+          <span><i style="background:#f0a3c0"></i>色</span>
+          <span><i style="background:var(--accent)"></i>服の 名前</span>
+          <span><i style="background:var(--teal)"></i>もよう・長さ など</span>
         </div>
-      </section>
-      <section class="card" aria-labelledby="h-color">
-        <h2 id="h-color">いろの かんじ</h2>
-        <div class="meter">
-          <div class="bar"><div class="pin" id="pin" style="left:50%"></div></div>
-          <div class="bar-labels"><span>すずしい</span><span>あたたかい</span></div>
-        </div>
-        <p class="note" id="toneNote"></p>
-        <div class="wear" id="wear"></div>
-      </section>
-      <section class="card" aria-labelledby="h-season">
-        <h2 id="h-season">にあう きせつ</h2>
-        <div class="seasons" id="seasons"></div>
-        <p class="note" id="seasonNote"></p>
-        <div class="reasons" id="reasons"></div>
       </section>
     </div>
   </main>
@@ -205,7 +243,7 @@ C('みどり', '#37b24d', 'cool', ['みどり', '緑', 'ぐりーん']);
 C('ミント', '#8ce0c4', 'cool', ['みんと']);
 C('みずいろ', '#74c0fc', 'cool', ['みずいろ', '水色', 'そらいろ', '空色', 'すかいぶるー']);
 C('あお', '#3b5bdb', 'cool', ['あお', '青', 'ぶるー', 'まっさお']);
-C('こん', '#25335e', 'cool', ['こんいろ', '紺色', '紺', 'ねいびー']);
+C('こん', '#25335e', 'cool', ['こんいろ', '紺色', '紺', 'ねいびー', 'こんの', 'こん色']);
 C('むらさき', '#9c5bd6', 'cool', ['むらさき', '紫', 'ぱーぷる']);
 C('ラベンダー', '#c5b0f0', 'cool', ['らべんだー']);
 C('しろ', '#ffffff', 'neutral', ['しろ', '白', 'ほわいと', 'まっしろ', '真っ白']);
@@ -311,7 +349,7 @@ PT('stars', 'ほし', ['ほしがら', 'ほし', '星', 'すたー']);
 // ぬぐ
 add('remove', {}, ['ぬぐ', 'ぬいで', 'ぬいだ', 'ぬがせ', 'とって', 'はずして', 'はずす', 'いらない', 'なしで', 'なし']);
 // まちがえやすい ことば(なにもしない)
-add('noop', {}, ['とっても', 'あかちゃん', 'こいぬ', 'おもしろ', 'はなし']);
+add('noop', {}, ['こんにち', 'こんな', 'こんど', 'とっても', 'あかちゃん', 'こいぬ', 'おもしろ', 'はなし']);
 
 DICT.sort((a, b) => b.k.length - a.k.length);
 
@@ -443,11 +481,11 @@ function startOutfit() {
   return {
     hair: { ...DEF.hair, base: { slot: 'hair', type: 'hair', name: 'かみのけ', def: { hex: '#6b4232', tone: 'warm', name: 'ちゃいろ' } } },
     top: mk('tshirt'),
-    bottom: mk('skirt', { hex: '#74c0fc', tone: 'cool', name: 'みずいろ' }),
+    bottom: mk('pants'),
     onepiece: null, outer: null,
     shoes: mk('sneakers'),
     socks: mk('socks'),
-    hat: null, ribbon: mk('ribbon', { hex: '#f783ac', tone: 'warm', name: 'ピンク' }), scarf: null, bag: null
+    hat: null, ribbon: null, scarf: null, bag: null
   };
 }
 
@@ -640,7 +678,7 @@ function render(o) {
   let s = `<defs>${defs}</defs>`;
   s += `<ellipse cx="150" cy="492" rx="78" ry="10" style="fill:var(--floor)"/>`;
   // うしろの かみ
-  s += path([['M', 86, 110], ['Q', 66, 236, 98, 272], ['L', 202, 272], ['Q', 234, 236, 214, 110], ['Z']], hair);
+  s += path([['M', 84, 110], ['Q', 70, 192, 96, 208], ['L', 204, 208], ['Q', 230, 192, 216, 110], ['Z']], hair);
   if (o.bag) s += drawBagBack(o.bag, F.bag);
   // あし・うで・くび
   s += `<rect x="128" y="292" width="18" height="182" rx="8" fill="${SKIN}" ${st()}/><rect x="154" y="292" width="18" height="182" rx="8" fill="${SKIN}" ${st()}/>`;
@@ -667,83 +705,83 @@ function render(o) {
   s += `<path d="M142 151 Q150 160 158 151" fill="none" ${st(2.4)}/>`;
   // まえがみ
   s += path([['M', 84, 118], ['Q', 80, 46, 150, 44], ['Q', 220, 46, 216, 118], ['Q', 206, 92, 190, 86], ['Q', 178, 98, 168, 82], ['Q', 152, 100, 140, 80], ['Q', 126, 98, 112, 84], ['Q', 96, 94, 84, 118], ['Z']], hair);
-  s += both([['M', 84, 108], ['Q', 76, 168, 92, 198], ['Q', 98, 160, 100, 116], ['Z']], hair);
+  s += both([['M', 84, 108], ['Q', 78, 160, 94, 186], ['Q', 99, 152, 100, 116], ['Z']], hair);
   s += `<path d="M112 62 Q130 52 150 52" fill="none" stroke="#ffffff" stroke-width="4" stroke-linecap="round" opacity=".35"/>`;
-  if (o.ribbon && !o.hat) s += drawRibbon(o.ribbon, F.ribbon);
+  if (o.ribbon) s += o.hat && o.ribbon.type === 'ribbon' ? `<g transform="translate(10 44)">${drawRibbon(o.ribbon, F.ribbon)}</g>` : (o.hat ? '' : drawRibbon(o.ribbon, F.ribbon));
   if (o.hat) s += drawHat(o.hat, F.hat);
   return s;
 }
 
-/* ===================== きせつ と いろの かんじ ===================== */
-const SEASONS = [
-  { id: 'spring', name: 'はる', color: '#f783ac', icon: '<circle cx="15" cy="9" r="5"/><circle cx="21" cy="14" r="5"/><circle cx="18" cy="21" r="5"/><circle cx="11" cy="21" r="5"/><circle cx="9" cy="14" r="5"/><circle cx="15" cy="16" r="3" fill="#ffd43b"/>' },
-  { id: 'summer', name: 'なつ', color: '#f59f00', icon: '<circle cx="15" cy="15" r="6"/><path d="M15 2v5M15 23v5M2 15h5M23 15h5M6 6l3.5 3.5M20.5 20.5L24 24M24 6l-3.5 3.5M9.5 20.5L6 24" stroke-width="2.4" stroke-linecap="round" stroke="currentColor"/>' },
-  { id: 'autumn', name: 'あき', color: '#d9480f', icon: '<path d="M15 3 L18 10 L25 8 L21 15 L27 19 L19 20 L17 27 L15 22 L13 27 L11 20 L3 19 L9 15 L5 8 L12 10 Z"/>' },
-  { id: 'winter', name: 'ふゆ', color: '#3b82f6', icon: '<path d="M15 3v24M4.6 9l20.8 12M4.6 21L25.4 9M11 5l4 4 4-4M11 25l4-4 4 4" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>' },
-];
-function seasonScore(o) {
-  const sc = { spring: 0, summer: 0, autumn: 0, winter: 0 }, why = { spring: [], summer: [], autumn: [], winter: [] };
-  const add = (k, n, w) => { sc[k] += n; if (w && !why[k].includes(w)) why[k].push(w); };
-  const main = o.onepiece || o.top;
-  if (main) {
-    if (main.sleeve === 'short' || main.sleeve === 'none') add('summer', 2, main.sleeve === 'none' ? 'そでなし' : 'はんそで');
-    if (main.sleeve === 'long' && !o.outer) { add('spring', 1, 'ながそで'); add('autumn', 1, 'ながそで'); }
+/* ===================== まほうの レシピ(こうか表) ===================== */
+const ABIL = {
+  yuki: { name: '勇気', ruby: '<ruby>勇気<rt>ゆうき</rt></ruby>', color: '#e8542c', say: 'ドキドキしても、一歩ふみ出せる',
+    colors: '赤・オレンジ・黄色・金色', items: 'スニーカー・ブーツ・キャップ・ズボン・はんズボン・ジャケット・リュック', pats: 'しましま・星' },
+  iyashi: { name: 'いやし', ruby: 'いやし', color: '#22a06b', say: 'ほっとして、まわりにも やさしくなれる',
+    colors: '緑・ミント・水色・うすい色・ベージュ・茶色', items: 'カーディガン・セーター・パーカー・マフラー・ニットぼう・むぎわらぼうし・サンダル', pats: '花がら・ふわふわ' },
+  shuchu: { name: '集中', ruby: '<ruby>集中<rt>しゅうちゅう</rt></ruby>', color: '#2d6ae0', say: '気持ちが落ち着いて、じっくり取り組める',
+    colors: '青・こん・白・はいいろ・黒', items: 'シャツ・コート・かわぐつ', pats: 'チェック・たてじま' },
+  miryoku: { name: '魅力', ruby: '<ruby>魅力<rt>みりょく</rt></ruby>', color: '#a94bd6', say: '自分らしさが キラッと光る',
+    colors: 'むらさき・ピンク・ラベンダー・にじ色', items: 'ワンピース・ゆかた・スカート・リボン・カチューシャ・ベレーぼう・ぼうし・かばん・タイツ', pats: 'ハート・水玉' },
+};
+const TYPE_AB = {
+  sneakers: 'yuki', boots: 'yuki', cap: 'yuki', pants: 'yuki', shorts: 'yuki', jacket: 'yuki', backpack: 'yuki', tank: 'yuki',
+  cardigan: 'iyashi', sweater: 'iyashi', hoodie: 'iyashi', scarf: 'iyashi', beanie: 'iyashi', straw: 'iyashi', sandals: 'iyashi',
+  shirt: 'shuchu', coat: 'shuchu', loafers: 'shuchu',
+  dress: 'miryoku', yukata: 'miryoku', skirt: 'miryoku', ribbon: 'miryoku', headband: 'miryoku', beret: 'miryoku', hat: 'miryoku', pochette: 'miryoku', tights: 'miryoku',
+};
+const PAT_AB = { stripes: 'yuki', stars: 'yuki', flowers: 'iyashi', check: 'shuchu', vstripes: 'shuchu', hearts: 'miryoku', dots: 'miryoku', rainbow: 'miryoku' };
+
+function hsl(hex) {
+  const [r, g, b] = hex2rgb(hex).map(v => v / 255);
+  const mx = Math.max(r, g, b), mn = Math.min(r, g, b), l = (mx + mn) / 2;
+  let h = 0, s = 0;
+  if (mx !== mn) {
+    const d = mx - mn;
+    s = l > 0.5 ? d / (2 - mx - mn) : d / (mx + mn);
+    if (mx === r) h = (g - b) / d + (g < b ? 6 : 0); else if (mx === g) h = (b - r) / d + 2; else h = (r - g) / d + 4;
+    h *= 60;
   }
-  const rule = {
-    yukata: [['summer', 4]], tank: [['summer', 3]], shorts: [['summer', 2]], sandals: [['summer', 3]], straw: [['summer', 3]], cap: [['summer', 1]],
-    coat: [['winter', 3]], scarf: [['winter', 3]], beanie: [['winter', 3]], sweater: [['winter', 2], ['autumn', 1]], tights: [['winter', 2], ['autumn', 1]], boots: [['winter', 2], ['autumn', 1]],
-    jacket: [['autumn', 2], ['spring', 1]], cardigan: [['spring', 2], ['autumn', 1]], beret: [['autumn', 2]], hoodie: [['autumn', 1], ['spring', 1]]
-  };
-  const worn = Object.entries(o).filter(([k, g]) => g && k !== 'hair').map(([, g]) => g);
-  worn.forEach(g => {
-    (rule[g.type] || []).forEach(([k, n]) => add(k, n, g.name));
-    if (g.type === 'skirt' && g.length === 'short') add('summer', 1, 'みじかい スカート');
-    (g.seasons || []).forEach(k => add(k, 2, g.colorName));
-  });
-  const main2 = [o.onepiece, o.top, o.bottom, o.outer].filter(Boolean);
-  main2.forEach(g => {
-    const L = lum(g.color), [r, gg, b] = hex2rgb(g.color);
-    if (L > 0.8 && L < 0.97 && r > b) add('spring', 1, 'やさしい いろ');
-    if (L < 0.55 && r > b + 30) add('autumn', 1, 'おちついた あたたかい いろ');
-    if (b > r + 30 && L > 0.6) add('summer', 1, 'すずしい いろ');
-    if (L < 0.35) add('winter', 1, 'こい いろ');
-  });
-  const best = Object.keys(sc).sort((a, b) => sc[b] - sc[a])[0];
-  return { sc, why, best: sc[best] >= 2 ? best : null };
+  return { h, s, l };
 }
-function toneOf(o) {
-  let w = 0, c = 0, n = 0;
-  const worn = ['onepiece', 'top', 'bottom', 'outer', 'scarf', 'hat', 'shoes', 'ribbon', 'bag', 'socks'];
-  worn.forEach(k => {
-    const g = o[k]; if (!g) return;
-    const weight = ['onepiece', 'top', 'bottom', 'outer'].includes(k) ? 2 : 1;
-    let t = g.tone;
-    if (g.pattern === 'rainbow') t = 'neutral';
-    if (t === 'warm') w += weight; else if (t === 'cool') c += weight; else n += weight;
+function colorAbility(g) {
+  if (g.pattern === 'rainbow') return 'miryoku';
+  const { h, s, l } = hsl(g.color);
+  if (s < 0.18 || l > 0.96 || l < 0.13) return 'shuchu';
+  if ((h < 45 || h >= 352) && l < 0.45) return 'iyashi';
+  if (h < 45 && s < 0.62 && l > 0.7) return 'iyashi';
+  if (h < 65 || h >= 352) return 'yuki';
+  if (h < 170) return 'iyashi';
+  if (h < 250) return l > 0.7 ? 'iyashi' : 'shuchu';
+  if (h < 300) return 'miryoku';
+  return l > 0.85 ? 'iyashi' : 'miryoku';
+}
+const WEAR_ORDER = ['hat', 'ribbon', 'onepiece', 'top', 'outer', 'scarf', 'bottom', 'bag', 'socks', 'shoes'];
+function magicOf(o) {
+  const res = { yuki: [], iyashi: [], shuchu: [], miryoku: [] };
+  const push = (k, t) => { if (k && !res[k].includes(t)) res[k].push(t); };
+  WEAR_ORDER.forEach(slot => {
+    const g = o[slot]; if (!g) return;
+    push(colorAbility(g), `${g.colorName}の ${g.name}`);
+    push(TYPE_AB[g.type], g.name);
+    if (g.pattern) push(PAT_AB[g.pattern], g.pattern === 'rainbow' ? 'にじ色' : (g.patternLabel || ''));
+    if (g.frill) push('iyashi', 'ふわふわ');
   });
-  const total = Math.max(1, w + c + n);
-  const pos = 50 + 50 * (w - c) / total;
-  let note;
-  if (w > c && w - c >= n / 2) note = 'あたたかい いろが おおいね。ぽかぽか、げんきな かんじ。';
-  else if (c > w && c - w >= n / 2) note = 'すずしい いろが おおいね。さわやかで すっきり した かんじ。';
-  else if (n > w + c) note = 'しろ・くろ・はいいろ みたいな いろが おおいね。おちついた かんじ。';
-  else note = 'あたたかい いろと すずしい いろを まぜたね。どんな かんじが するかな？';
-  return { pos, note };
+  Object.keys(res).forEach(k => { res[k] = res[k].filter(Boolean); });
+  return res;
 }
 
 /* ===================== がめん ===================== */
 const $ = id => document.getElementById(id);
-let outfit = startOutfit();
+let state = { outfit: startOutfit(), spells: [] };
+let ability = null;
 let history = [];
 const EXAMPLES = [
-  'みずいろの はんそでの ワンピース',
-  'あかい ニットぼうと しろい マフラー',
-  'さくらいろの カーディガン',
-  'きいろと しろの しましまの Tシャツ',
-  'むぎわらぼうしと サンダル',
-  'ちゃいろの ながい コート と ブーツ',
-  'こんいろの ゆかた',
-  'ハートがらの ふわふわ スカート',
+  '赤い ジャケットと スニーカー',
+  'ミントの ふわふわ カーディガン',
+  'こんの チェックの シャツ',
+  'むらさきの 星がらの ワンピース',
+  'うすい 黄色の パーカーと キャップ',
+  '金色の リボン',
 ];
 $('examples').innerHTML = EXAMPLES.map(t => `<button type="button">${t}</button>`).join('');
 $('examples').addEventListener('click', ev => {
@@ -751,11 +789,25 @@ $('examples').addEventListener('click', ev => {
   $('say').value = b.textContent; dress(b.textContent);
 });
 
+$('abilities').innerHTML = Object.entries(ABIL).map(([k, a]) =>
+  `<button type="button" class="ab" data-k="${k}" aria-pressed="false" style="--a:${a.color}"><b><i></i>${a.ruby}</b><small>${a.say}</small></button>`).join('');
+$('abilities').addEventListener('click', ev => {
+  const b = ev.target.closest('.ab'); if (!b) return;
+  ability = b.dataset.k;
+  document.querySelectorAll('.ab').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+  setBubble(`${ABIL[ability].name}アップの まほうを かけよう！ レシピの じゅもんを 入れてね。`);
+  refresh();
+  $('say').focus({ preventScroll: true });
+});
+
+$('recipe').innerHTML = `<table><thead><tr><th scope="col">上げたい力</th><th scope="col">色</th><th scope="col">服・小物</th><th scope="col">もよう</th></tr></thead><tbody>` +
+  Object.values(ABIL).map(a => `<tr style="--a:${a.color}"><th scope="row">${a.ruby}</th><td>${a.colors}</td><td>${a.items}</td><td>${a.pats}</td></tr>`).join('') + '</tbody></table>';
+
 function setBubble(t) { const b = $('bubble'); b.textContent = t; b.classList.remove('pop'); void b.offsetWidth; b.classList.add('pop'); }
 const escapeHtml = s => s.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
 function showFound(p) {
-  if (!p) { $('found').innerHTML = '<span style="color:var(--muted)">ここに、みつけた ことばが でるよ</span>'; return; }
+  if (!p) { $('found').innerHTML = '<span style="color:var(--muted)">ここに、じゅもんで 見つかった ことばが 出るよ</span>'; return; }
   let html = '', i = 0;
   for (const t of p.tokens) {
     if (t.e.kind === 'noop') continue;
@@ -769,63 +821,80 @@ function showFound(p) {
     i = t.end;
   }
   html += escapeHtml(p.chars.slice(i).join(''));
-  $('found').innerHTML = html || '<span style="color:var(--muted)">（なにも かいてないよ）</span>';
+  $('found').innerHTML = html;
 }
 
 function refresh() {
-  $('girl').innerHTML = render(outfit);
-  const t = toneOf(outfit);
-  $('pin').style.left = Math.max(4, Math.min(96, t.pos)) + '%';
-  $('toneNote').textContent = t.note;
-  const worn = ['hat', 'ribbon', 'onepiece', 'top', 'outer', 'scarf', 'bottom', 'bag', 'socks', 'shoes'].map(k => outfit[k]).filter(Boolean);
-  $('wear').innerHTML = worn.map(g => {
-    const bg = g.pattern === 'rainbow' ? 'linear-gradient(#ff6b6b,#ffe066,#74c0fc,#b197fc)' : (g.pattern ? `linear-gradient(135deg, ${g.color} 50%, ${g.motif} 50%)` : g.color);
-    return `<span><b style="background:${bg}"></b>${escapeHtml(g.name)}</span>`;
-  }).join('');
-  const s = seasonScore(outfit);
-  $('seasons').innerHTML = SEASONS.map(x => `<div class="season ${s.best === x.id ? 'on' : ''}" style="--s:${x.color}"><svg viewBox="0 0 30 30" fill="${s.best === x.id ? x.color : 'currentColor'}" style="color:${s.best === x.id ? x.color : 'var(--line)'}" aria-hidden="true">${x.icon}</svg>${x.name}</div>`).join('');
-  if (s.best) {
-    const nm = SEASONS.find(x => x.id === s.best).name;
-    $('seasonNote').textContent = `「${nm}」に ぴったり かも！ こんな ところが ${nm}っぽいよ:`;
-    $('reasons').innerHTML = s.why[s.best].map(w => `<span>${escapeHtml(w)}</span>`).join('');
+  const o = state.outfit;
+  $('girl').innerHTML = render(o);
+  const stage = $('stage'), badge = $('badge');
+  if (ability) {
+    const a = ABIL[ability];
+    stage.style.setProperty('--a', a.color); stage.classList.add('aura');
+    badge.hidden = false; badge.style.setProperty('--a', a.color); badge.textContent = `${a.name}アップ！`;
+  } else { stage.classList.remove('aura'); badge.hidden = true; }
+
+  const m = magicOf(o);
+  let html = '';
+  const chips = list => `<div class="chips">${list.map(t => `<span>${escapeHtml(t)}</span>`).join('')}</div>`;
+  if (ability) {
+    const a = ABIL[ability], got = m[ability];
+    html += `<div class="mg main" style="--a:${a.color}"><div class="mg-title"><i>${a.ruby}</i> の まほうの もと</div>` +
+      (got.length
+        ? `${chips(got)}<div>${got.length}こ 見つかったよ。「${a.say}」まほうが かかりそう！</div>`
+        : `<div>この コーデには、あなたの 気もちが こめられているよ。どんな 思いで 選んだか、ショーで つたえてみよう！ レシピ表も 見てみてね。</div>`) + `</div>`;
   } else {
-    $('seasonNote').textContent = 'いつでも きられそうな ふくだね。きせつを きめるなら、なにを たす？';
-    $('reasons').innerHTML = '';
+    html += `<div class="mg"><div class="mg-title">まず ① で 上げたい力を 選ぼう</div></div>`;
   }
+  const rest = Object.keys(ABIL).filter(k => k !== ability && m[k].length);
+  if (rest.length) {
+    html += `<div class="others"><div class="fine">${ability ? 'ほかにも、こんな まほうが 入っているよ' : 'いまの コーデに 入っている まほう'}</div>` +
+      rest.map(k => `<div class="orow" style="--a:${ABIL[k].color}"><b>${ABIL[k].name}</b><span>${m[k].map(escapeHtml).join('、')}</span></div>`).join('') + `</div>`;
+  }
+  $('magic').innerHTML = html;
+  $('spells').innerHTML = state.spells.slice(-4).map(t => `<li>「${escapeHtml(t)}」</li>`).join('');
   $('undo').disabled = history.length === 0;
 }
 
-const ENDS = ['にあうかな？', 'どうかな？', 'すてき！', 'うれしいな！'];
 function dress(text) {
   text = text.trim();
-  if (!text) { setBubble('ことばを いれてね。'); return; }
+  if (!text) { setBubble('じゅもんを 入れてね。'); return; }
   const p = parse(text);
   showFound(p);
-  const r = apply(outfit, p);
+  const r = apply(state.outfit, p);
   if (!r.done.length && !r.removed.length) {
-    setBubble('うーん、わからなかったよ。「みずいろの ワンピース」みたいに、いろと ふくの なまえを いれてね。');
+    setBubble('うーん、その じゅもんは わからなかったよ。「赤い ジャケット」みたいに、色と 服の 名前を 入れてね。');
     return;
   }
-  history.push(outfit); if (history.length > 30) history.shift();
-  outfit = r.outfit;
+  history.push(state); if (history.length > 30) history.shift();
+  const before = ability ? magicOf(state.outfit)[ability].length : 0;
+  state = { outfit: r.outfit, spells: state.spells.concat(text) };
   const msgs = [];
-  if (r.done.length) msgs.push(r.done.slice(0, 3).map(g => `${describe(g)}`).join('、') + ' を きたよ！');
+  if (r.done.length) msgs.push(r.done.slice(0, 3).map(describe).join('、') + ' に 着がえたよ！');
   if (r.removed.length) msgs.push(r.removed.join('と ') + 'を はずしたよ。');
-  setBubble(msgs.join(' ') + ' ' + ENDS[Math.floor(Math.random() * ENDS.length)]);
+  if (ability && magicOf(state.outfit)[ability].length > before) msgs.push(`${ABIL[ability].name}の まほうが 強くなった 気がする！`);
+  else msgs.push(['気に入ったよ！', 'どうかな？', 'わくわくする！'][Math.floor(Math.random() * 3)]);
+  setBubble(msgs.join(' '));
   refresh();
 }
 
 $('form').addEventListener('submit', ev => { ev.preventDefault(); dress($('say').value); });
 $('undo').addEventListener('click', () => {
   if (!history.length) return;
-  outfit = history.pop(); setBubble('ひとつ まえに もどったよ。'); refresh();
+  state = history.pop(); setBubble('ひとつ前に もどったよ。'); refresh();
 });
 $('reset').addEventListener('click', () => {
-  history.push(outfit); outfit = startOutfit(); showFound(null);
-  setBubble('はじめの ふくに もどったよ。'); refresh();
+  history.push(state); state = { outfit: startOutfit(), spells: [] }; showFound(null);
+  setBubble('はじめの 服に もどったよ。'); refresh();
 });
+$('show').addEventListener('click', () => {
+  document.body.classList.add('show');
+  setBubble(ability ? `${ABIL[ability].name}アップの コーデだよ。見てね！` : 'わたしの コーデ、見てね！');
+  window.scrollTo({ top: 0 });
+});
+$('showExit').addEventListener('click', () => { document.body.classList.remove('show'); });
 
-setBubble('こんにちは！ わたしは いろは。きせたい ふくを ことばで おしえてね。');
-showFound(parse('みずいろの スカート'));
+setBubble('こんにちは、ノアだよ！ まず 上げたい力を 選んで、レシピの じゅもんを 入れてね。');
+showFound(null);
 refresh();
 </script>
